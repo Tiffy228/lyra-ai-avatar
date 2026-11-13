@@ -111,10 +111,11 @@
                   <stop offset="55%" stop-color="#DCE3EE" />
                   <stop offset="100%" stop-color="#B0BBCB" />
                 </linearGradient>
-                <linearGradient id="hairTipRainbow" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#C4D0E0" />
-                  <stop offset="50%" stop-color="#93C5FD" />
-                  <stop offset="80%" stop-color="#F0ABFC" />
+                <linearGradient id="hairTipRainbow" x1="0%" y1="0%" x2="15%" y2="100%">
+                  <stop offset="0%" stop-color="#EEF2F7" />
+                  <stop offset="48%" stop-color="#CFD8E5" />
+                  <stop offset="76%" stop-color="#A5F3FC" />
+                  <stop offset="90%" stop-color="#E9D5FF" />
                   <stop offset="100%" stop-color="#FDA4AF" />
                 </linearGradient>
 
@@ -159,15 +160,15 @@
 
               <!-- Layer 1: Back Hair Rig (sits cleanly BEHIND neck, collar, and shoulders) -->
               <g id="backHairRig">
-                <!-- Iridescent Pastel Rainbow Under-Hair Layer -->
+                <!-- Subtle Iridescent Pastel Inner Fringe peeking below tips -->
                 <path
-                  d="M 106 188 C 96 238, 100 308, 126 340 C 146 355, 166 344, 172 322 L 248 322 C 254 344, 274 355, 294 340 C 320 308, 324 238, 314 188 Z"
+                  d="M 108 210 C 102 252, 106 306, 126 334 C 142 344, 162 336, 170 318 L 250 318 C 258 336, 278 344, 294 334 C 314 306, 318 252, 312 210 Z"
                   fill="url(#hairRainbowUnder)"
-                  opacity="0.82"
+                  opacity="0.45"
                 />
                 <!-- Back Platinum-Silver Bob Hair -->
                 <path
-                  d="M 104 182 C 94 228, 98 296, 122 330 C 142 344, 164 334, 170 314 L 250 314 C 256 334, 278 344, 298 330 C 322 296, 326 228, 316 182 C 304 100, 260 70, 210 70 C 160 70, 116 100, 104 182 Z"
+                  d="M 104 182 C 94 228, 100 294, 122 328 C 142 342, 164 332, 170 314 L 250 314 C 256 332, 278 342, 298 328 C 320 294, 326 228, 316 182 C 304 100, 260 70, 210 70 C 160 70, 116 100, 104 182 Z"
                   fill="url(#hairBackGrad)"
                 />
               </g>
@@ -181,19 +182,28 @@
                 />
                 <!-- Soft Chin Shadow & Collarbone Shading -->
                 <path
-                  d="M 186 288 Q 210 316 234 288 L 234 307 Q 210 326 186 307 Z"
+                  d="M 186 288 Q 210 315 234 288 L 234 306 Q 210 325 186 306 Z"
                   fill="#BD8980"
-                  opacity="0.45"
+                  opacity="0.48"
                 />
+
+                <!-- Netrunner Choker sitting cleanly around mid-neck -->
+                <path
+                  d="M 185 322 Q 210 331 235 322 L 236 334 Q 210 343 184 334 Z"
+                  fill="#171920"
+                  stroke="#475569"
+                  stroke-width="1.2"
+                />
+                <circle cx="210" cy="335" r="3.4" fill="#22D3EE" />
 
                 <!-- Dark Netrunner Bodysuit Core -->
                 <path
-                  d="M 88 460 C 94 374, 134 346, 210 346 C 286 346, 326 374, 332 460 Z"
+                  d="M 88 460 C 94 374, 134 348, 210 348 C 286 348, 326 374, 332 460 Z"
                   fill="url(#suitDarkGrad)"
                 />
                 <!-- Bodysuit Chest Seam Lines & Magenta Accent -->
                 <path
-                  d="M 176 348 L 194 458 M 244 348 L 226 458"
+                  d="M 176 350 L 194 458 M 244 350 L 226 458"
                   stroke="#3E4452"
                   stroke-width="1.8"
                 />
@@ -204,15 +214,6 @@
                   stroke-width="2"
                   stroke-opacity="0.78"
                 />
-
-                <!-- Netrunner Choker / Collar Tech Band (sits IN FRONT OF neck) -->
-                <path
-                  d="M 183 330 Q 210 340 237 330 L 240 344 Q 210 354 180 344 Z"
-                  fill="#171920"
-                  stroke="#475569"
-                  stroke-width="1.2"
-                />
-                <circle cx="210" cy="343" r="3.4" fill="#22D3EE" />
 
                 <!-- Lucy's Iconic White High-Collar Tech Jacket (Left & Right Flaps) -->
                 <path
@@ -225,19 +226,19 @@
                 />
                 <!-- High Jacket Collar Wings framing neck cleanly -->
                 <path
-                  d="M 148 334 L 160 308 L 181 334 L 175 356 Z"
+                  d="M 148 336 L 160 310 L 181 336 L 175 358 Z"
                   fill="#E2E8F0"
                   stroke="#94A3B8"
                   stroke-width="1.2"
                 />
                 <path
-                  d="M 272 334 L 260 308 L 239 334 L 245 356 Z"
+                  d="M 272 336 L 260 310 L 239 336 L 245 358 Z"
                   fill="#E2E8F0"
                   stroke="#94A3B8"
                   stroke-width="1.2"
                 />
                 <path
-                  d="M 161 312 L 178 336 M 259 312 L 242 336"
+                  d="M 161 314 L 178 338 M 259 314 L 242 338"
                   stroke="#F43F5E"
                   stroke-width="2"
                   stroke-linecap="round"

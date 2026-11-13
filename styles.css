@@ -390,13 +390,13 @@ select:focus-visible {
   flex: 1;
   display: grid;
   place-items: center;
-  min-height: 290px;
+  min-height: 240px;
 }
 
 .lyra-svg {
-  width: min(100%, 355px);
+  width: min(100%, 335px);
   height: auto;
-  max-height: 385px;
+  max-height: 345px;
   filter: drop-shadow(0 20px 28px rgba(0, 0, 0, 0.55));
   user-select: none;
 }
