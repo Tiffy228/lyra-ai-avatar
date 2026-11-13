@@ -1,13 +1,12 @@
 /**
- * LyraCharacter — Procedural 2D SVG animation & lip-sync engine.
- * Handles blinking, gaze tracking, breathing, facial expressions, and viseme mouth animation.
+ * LyraCharacter — Procedural 2D SVG animation, mood expressions, and lip-sync engine.
+ * Handles blinking, gaze tracking, breathing, eyelid/brow expressions, and voice-wave bars.
  */
 class LyraCharacter {
   constructor() {
     this.headRig = document.getElementById("headRig");
     this.torsoGroup = document.getElementById("torsoGroup");
-    this.lanternGroup = document.getElementById("lanternGroup");
-    this.lanternAura = document.getElementById("lanternAura");
+    this.stageBackdrop = document.getElementById("stageBackdrop");
 
     this.leftPupil = document.getElementById("leftPupilGroup");
     this.rightPupil = document.getElementById("rightPupilGroup");
@@ -27,7 +26,7 @@ class LyraCharacter {
     this.mouthLips = document.getElementById("mouthLips");
 
     this.expressionLabel = document.getElementById("expressionLabel");
-    this.exprButtons = Array.from(document.querySelectorAll(".expr-btn"));
+    this.voiceWaveBars = Array.from(document.querySelectorAll("#voiceWave span"));
 
     this.currentExpression = "warm";
     this.isSpeaking = false;
@@ -41,8 +40,8 @@ class LyraCharacter {
     this.gazeX = 0;
     this.gazeY = 0;
 
-    this.blinkValue = 0; // 0 = open, 1 = closed
-    this.nextBlinkAt = performance.now() + 2200;
+    this.blinkValue = 0;
+    this.nextBlinkAt = performance.now() + 2000;
     this.blinkPhase = "idle";
     this.blinkStart = 0;
 
@@ -53,7 +52,9 @@ class LyraCharacter {
         label: "Warm",
         leftBrow: "M 136 178 Q 160 169 184 176",
         rightBrow: "M 236 176 Q 260 169 284 178",
-        blush: 0.55,
+        leftLid: "M 134 205 Q 160 183 186 205",
+        rightLid: "M 234 205 Q 260 183 286 205",
+        blush: 0.48,
         smileCurve: 7,
         headTilt: 0,
       },
@@ -61,41 +62,51 @@ class LyraCharacter {
         label: "Happy",
         leftBrow: "M 135 173 Q 160 162 185 171",
         rightBrow: "M 235 171 Q 260 162 285 173",
-        blush: 0.85,
+        leftLid: "M 134 204 Q 160 179 186 204",
+        rightLid: "M 234 204 Q 260 179 286 204",
+        blush: 0.78,
         smileCurve: 13,
         headTilt: -2,
       },
       excited: {
         label: "Excited",
-        leftBrow: "M 134 166 Q 160 155 186 166",
-        rightBrow: "M 234 166 Q 260 155 286 166",
-        blush: 0.9,
+        leftBrow: "M 134 166 Q 160 154 186 166",
+        rightBrow: "M 234 166 Q 260 154 286 166",
+        leftLid: "M 134 205 Q 160 177 186 205",
+        rightLid: "M 234 205 Q 260 177 286 205",
+        blush: 0.85,
         smileCurve: 14,
         headTilt: 2.5,
       },
       thinking: {
         label: "Thinking",
-        leftBrow: "M 136 175 Q 160 168 184 178",
+        leftBrow: "M 136 177 Q 160 172 184 180",
         rightBrow: "M 236 170 Q 260 160 284 168",
-        blush: 0.35,
+        leftLid: "M 134 205 Q 160 191 186 205",
+        rightLid: "M 234 205 Q 260 189 286 205",
+        blush: 0.3,
         smileCurve: 1,
-        headTilt: -4.5,
+        headTilt: -4.8,
       },
       surprised: {
         label: "Surprised",
-        leftBrow: "M 134 162 Q 160 150 186 162",
-        rightBrow: "M 234 162 Q 260 150 286 162",
-        blush: 0.65,
+        leftBrow: "M 134 161 Q 160 148 186 161",
+        rightBrow: "M 234 161 Q 260 148 286 161",
+        leftLid: "M 134 205 Q 160 175 186 205",
+        rightLid: "M 234 205 Q 260 175 286 205",
+        blush: 0.62,
         smileCurve: 2,
         headTilt: 1.5,
       },
       curious: {
         label: "Curious",
-        leftBrow: "M 136 171 Q 160 160 184 172",
+        leftBrow: "M 136 170 Q 160 159 184 171",
         rightBrow: "M 236 177 Q 260 172 284 178",
-        blush: 0.5,
+        leftLid: "M 134 205 Q 160 181 186 205",
+        rightLid: "M 234 205 Q 260 186 286 205",
+        blush: 0.45,
         smileCurve: 5,
-        headTilt: 4,
+        headTilt: 4.2,
       },
     };
 
@@ -121,16 +132,18 @@ class LyraCharacter {
 
     this.leftBrow.setAttribute("d", expr.leftBrow);
     this.rightBrow.setAttribute("d", expr.rightBrow);
+    this.leftUpperLid.setAttribute("d", expr.leftLid);
+    this.rightUpperLid.setAttribute("d", expr.rightLid);
     this.leftBlush.setAttribute("opacity", String(expr.blush));
     this.rightBlush.setAttribute("opacity", String(expr.blush));
+
+    if (this.stageBackdrop) {
+      this.stageBackdrop.dataset.mood = this.currentExpression;
+    }
 
     if (this.expressionLabel) {
       this.expressionLabel.textContent = expr.label;
     }
-
-    this.exprButtons.forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.expr === this.currentExpression);
-    });
   }
 
   setSpeaking(active) {
@@ -138,12 +151,23 @@ class LyraCharacter {
     if (!active) {
       this.targetMouthOpen = 0;
       this.targetMouthWidth = 1;
+      this.voiceWaveBars.forEach((bar) => {
+        bar.style.height = "4px";
+      });
     }
   }
 
   setMouthTarget(openAmount, widthFactor = 1) {
     this.targetMouthOpen = Math.max(0, Math.min(1, openAmount));
     this.targetMouthWidth = Math.max(0.65, Math.min(1.25, widthFactor));
+
+    if (this.isSpeaking && this.voiceWaveBars.length) {
+      this.voiceWaveBars.forEach((bar, i) => {
+        const wave = Math.abs(Math.sin((i + 1) * 0.9 + openAmount * 5.2));
+        const h = Math.round(4 + openAmount * 14 * (0.45 + wave * 0.65));
+        bar.style.height = `${h}px`;
+      });
+    }
   }
 
   triggerBlink(now) {
@@ -171,7 +195,6 @@ class LyraCharacter {
       if (elapsed >= 110) {
         this.blinkValue = 0;
         this.blinkPhase = "idle";
-        // Occasional natural double-blink
         const doubleBlink = Math.random() < 0.22;
         this.nextBlinkAt = now + (doubleBlink ? 180 : 2200 + Math.random() * 3200);
       }
@@ -186,14 +209,13 @@ class LyraCharacter {
     this.mouthWidth += (this.targetMouthWidth - this.mouthWidth) * 0.32;
 
     const expr = this.expressions[this.currentExpression] || this.expressions.warm;
-    const w = 22 * this.mouthWidth;
+    const w = 20 * this.mouthWidth;
     const smile = expr.smileCurve;
 
     if (this.mouthOpen < 0.06) {
-      // Closed expressive mouth
       const lipPath =
         this.currentExpression === "surprised"
-          ? `M -8 2 A 8 7 0 1 0 8 2 A 8 7 0 1 0 -8 2 Z`
+          ? `M -7 2 A 7 6.5 0 1 0 7 2 A 7 6.5 0 1 0 -7 2 Z`
           : `M ${-w} 0 Q 0 ${smile} ${w} 0`;
 
       this.mouthLips.setAttribute("d", lipPath);
@@ -203,7 +225,7 @@ class LyraCharacter {
       return;
     }
 
-    const openH = 4 + this.mouthOpen * 19;
+    const openH = 4 + this.mouthOpen * 18;
     const upperY = -1.5;
     const lowerY = openH + smile * 0.25;
 
@@ -216,18 +238,21 @@ class LyraCharacter {
     const showInner = Math.min(1, this.mouthOpen * 1.6);
     this.mouthTeeth.setAttribute("opacity", (showInner * 0.9).toFixed(2));
     this.mouthTongue.setAttribute("opacity", (showInner * 0.85).toFixed(2));
-    this.mouthTongue.setAttribute("cy", (openH * 0.52 + 2).toFixed(1));
+    this.mouthTongue.setAttribute("cy", (openH * 0.5 + 2).toFixed(1));
   }
 
   animate(now) {
     const t = (now - this.startTime) / 1000;
     const expr = this.expressions[this.currentExpression] || this.expressions.warm;
 
-    // Breathing & gentle idle sway
-    const breathY = Math.sin(t * 1.6) * 2.4;
-    const swayX = Math.sin(t * 0.75) * 1.8;
-    const speakNod = this.isSpeaking ? Math.sin(t * 7.2) * 1.9 : 0;
-    const headTilt = expr.headTilt + Math.sin(t * 0.65) * 1.2 + (this.isSpeaking ? Math.sin(t * 4.5) * 1.4 : 0);
+    const breathY = Math.sin(t * 1.55) * 2.2;
+    const swayX = Math.sin(t * 0.72) * 1.6;
+    const nodSpeed = this.currentExpression === "thinking" ? 4.4 : 7.0;
+    const speakNod = this.isSpeaking ? Math.sin(t * nodSpeed) * 1.8 : 0;
+    const headTilt =
+      expr.headTilt +
+      Math.sin(t * 0.65) * 1.1 +
+      (this.isSpeaking ? Math.sin(t * 4.2) * 1.3 : 0);
 
     this.headRig.setAttribute(
       "transform",
@@ -235,14 +260,9 @@ class LyraCharacter {
     );
     this.torsoGroup.setAttribute("transform", `translate(0, ${(breathY * 0.55).toFixed(2)})`);
 
-    // Floating lantern bob
-    const lanternBob = Math.sin(t * 1.9 + 0.8) * 5;
-    this.lanternGroup.setAttribute("transform", `translate(345, ${(290 + lanternBob).toFixed(2)})`);
-    this.lanternAura.setAttribute("opacity", (0.12 + Math.sin(t * 3.1) * 0.04).toFixed(3));
-
-    // Gaze smoothing (thinking looks slightly up-right)
-    const gxTarget = this.currentExpression === "thinking" ? 3.5 : this.targetGazeX;
-    const gyTarget = this.currentExpression === "thinking" ? -2.8 : this.targetGazeY;
+    // Gaze smoothing (thinking looks thoughtfully up-right)
+    const gxTarget = this.currentExpression === "thinking" ? 3.8 : this.targetGazeX;
+    const gyTarget = this.currentExpression === "thinking" ? -3.0 : this.targetGazeY;
     this.gazeX += (gxTarget - this.gazeX) * 0.1;
     this.gazeY += (gyTarget - this.gazeY) * 0.1;
 
@@ -269,13 +289,13 @@ class LyraCharacter {
     resize();
     window.addEventListener("resize", resize);
 
-    const motes = Array.from({ length: 24 }, () => ({
+    const motes = Array.from({ length: 18 }, () => ({
       x: Math.random() * 600,
       y: Math.random() * 500,
-      r: 0.9 + Math.random() * 1.9,
-      vy: 0.15 + Math.random() * 0.32,
-      vx: (Math.random() - 0.5) * 0.2,
-      alpha: 0.18 + Math.random() * 0.45,
+      r: 0.8 + Math.random() * 1.5,
+      vy: 0.12 + Math.random() * 0.25,
+      vx: (Math.random() - 0.5) * 0.16,
+      alpha: 0.12 + Math.random() * 0.28,
     }));
 
     const draw = () => {
@@ -295,7 +315,7 @@ class LyraCharacter {
           if (m.x > w) m.x -= w;
           ctx.beginPath();
           ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(226, 230, 238, ${m.alpha})`;
+          ctx.fillStyle = `rgba(229, 231, 235, ${m.alpha})`;
           ctx.fill();
         }
       }
