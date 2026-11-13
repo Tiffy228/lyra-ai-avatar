@@ -447,7 +447,7 @@ class LyraBrain {
           ["Give me another riddle", "Tell me a joke", "Start Kabuki Rooftop gig"]
         );
       }
-      if (input.split(/\s+/).length <= 3 && !/\b(gig|story|joke|fact|hi|hello|привет)\b/i.test(lower)) {
+      if (input.split(/\s+/).length <= 3 && !/\b(gig|story|joke|fact|riddle|puzzle|arasaka|kabuki|moon|hi|hello|привет|загадк|шутк|факт)\b/i.test(lower)) {
         return finalize(
           "curious",
           ru

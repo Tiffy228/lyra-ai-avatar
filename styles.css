@@ -806,6 +806,12 @@ select:focus-visible {
 }
 
 /* Responsive */
+@media (min-width: 961px) {
+  .stage-backdrop {
+    max-height: calc(100vh - 104px);
+  }
+}
+
 @media (max-width: 960px) {
   .studio-grid {
     grid-template-columns: 1fr;
@@ -814,6 +820,10 @@ select:focus-visible {
   .dialogue-panel {
     max-height: none;
     min-height: 440px;
+  }
+
+  .chat-feed {
+    max-height: 360px;
   }
 }
 

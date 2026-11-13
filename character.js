@@ -5,6 +5,7 @@
 class LyraCharacter {
   constructor() {
     this.headRig = document.getElementById("headRig");
+    this.backHairRig = document.getElementById("backHairRig");
     this.torsoGroup = document.getElementById("torsoGroup");
     this.stageBackdrop = document.getElementById("stageBackdrop");
     this.cyberHaloGroup = document.getElementById("cyberHaloGroup");
@@ -14,6 +15,10 @@ class LyraCharacter {
     this.leftIrisHud = document.getElementById("leftIrisHud");
     this.rightIrisHud = document.getElementById("rightIrisHud");
 
+    this.leftSclera = document.getElementById("leftSclera");
+    this.rightSclera = document.getElementById("rightSclera");
+    this.leftEyeClipPath = document.getElementById("leftEyeClipPath");
+    this.rightEyeClipPath = document.getElementById("rightEyeClipPath");
     this.leftBlinkLid = document.getElementById("leftBlinkLid");
     this.rightBlinkLid = document.getElementById("rightBlinkLid");
     this.leftUpperLid = document.getElementById("leftUpperLid");
@@ -58,6 +63,8 @@ class LyraCharacter {
         rightBrow: "M 236 176 Q 260 169 284 178",
         leftLid: "M 130 201 Q 160 182 186 205",
         rightLid: "M 234 205 Q 260 182 290 201",
+        leftEyeShape: "M 135 204 Q 160 184 185 205 Q 160 221 135 204 Z",
+        rightEyeShape: "M 235 205 Q 260 184 285 204 Q 260 221 235 205 Z",
         blush: 0.44,
         smileCurve: 6,
         headTilt: 0,
@@ -68,6 +75,8 @@ class LyraCharacter {
         rightBrow: "M 235 171 Q 260 162 285 173",
         leftLid: "M 130 200 Q 160 179 186 204",
         rightLid: "M 234 204 Q 260 179 290 200",
+        leftEyeShape: "M 135 204 Q 160 181 185 204 Q 160 218 135 204 Z",
+        rightEyeShape: "M 235 204 Q 260 181 285 204 Q 260 218 235 204 Z",
         blush: 0.72,
         smileCurve: 12,
         headTilt: -2,
@@ -78,6 +87,8 @@ class LyraCharacter {
         rightBrow: "M 234 166 Q 260 155 286 166",
         leftLid: "M 130 201 Q 160 176 186 205",
         rightLid: "M 234 205 Q 260 176 290 201",
+        leftEyeShape: "M 135 204 Q 160 178 185 205 Q 160 223 135 204 Z",
+        rightEyeShape: "M 235 205 Q 260 178 285 204 Q 260 223 235 205 Z",
         blush: 0.8,
         smileCurve: 13,
         headTilt: 2.5,
@@ -88,9 +99,11 @@ class LyraCharacter {
         rightBrow: "M 236 171 Q 260 161 284 169",
         leftLid: "M 130 202 Q 160 190 186 205",
         rightLid: "M 234 205 Q 260 188 290 202",
+        leftEyeShape: "M 135 204 Q 160 192 185 205 Q 160 220 135 204 Z",
+        rightEyeShape: "M 235 205 Q 260 190 285 204 Q 260 220 235 205 Z",
         blush: 0.25,
         smileCurve: 0.5,
-        headTilt: -4.5,
+        headTilt: -4.2,
       },
       surprised: {
         label: "Surprised",
@@ -98,6 +111,8 @@ class LyraCharacter {
         rightBrow: "M 234 161 Q 260 148 286 161",
         leftLid: "M 130 201 Q 160 174 186 205",
         rightLid: "M 234 205 Q 260 174 290 201",
+        leftEyeShape: "M 135 204 Q 160 176 185 205 Q 160 225 135 204 Z",
+        rightEyeShape: "M 235 205 Q 260 176 285 204 Q 260 225 235 205 Z",
         blush: 0.58,
         smileCurve: 2,
         headTilt: 1.5,
@@ -108,9 +123,11 @@ class LyraCharacter {
         rightBrow: "M 236 177 Q 260 172 284 178",
         leftLid: "M 130 201 Q 160 180 186 205",
         rightLid: "M 234 205 Q 260 185 290 201",
+        leftEyeShape: "M 135 204 Q 160 182 185 205 Q 160 221 135 204 Z",
+        rightEyeShape: "M 235 205 Q 260 187 285 204 Q 260 221 235 205 Z",
         blush: 0.4,
         smileCurve: 4.5,
-        headTilt: 4.2,
+        headTilt: 4.0,
       },
     };
 
@@ -138,6 +155,12 @@ class LyraCharacter {
     this.rightBrow.setAttribute("d", expr.rightBrow);
     this.leftUpperLid.setAttribute("d", expr.leftLid);
     this.rightUpperLid.setAttribute("d", expr.rightLid);
+    if (this.leftSclera) this.leftSclera.setAttribute("d", expr.leftEyeShape);
+    if (this.rightSclera) this.rightSclera.setAttribute("d", expr.rightEyeShape);
+    if (this.leftEyeClipPath) this.leftEyeClipPath.setAttribute("d", expr.leftEyeShape);
+    if (this.rightEyeClipPath) this.rightEyeClipPath.setAttribute("d", expr.rightEyeShape);
+    if (this.leftBlinkLid) this.leftBlinkLid.setAttribute("d", expr.leftEyeShape);
+    if (this.rightBlinkLid) this.rightBlinkLid.setAttribute("d", expr.rightEyeShape);
     this.leftBlush.setAttribute("opacity", String(expr.blush));
     this.rightBlush.setAttribute("opacity", String(expr.blush));
 
@@ -254,20 +277,22 @@ class LyraCharacter {
     const t = (now - this.startTime) / 1000;
     const expr = this.expressions[this.currentExpression] || this.expressions.warm;
 
-    const breathY = Math.sin(t * 1.5) * 2.1;
-    const swayX = Math.sin(t * 0.7) * 1.5;
+    const breathY = Math.sin(t * 1.5) * 1.8;
+    const swayX = Math.sin(t * 0.7) * 1.1;
     const nodSpeed = this.currentExpression === "thinking" ? 4.2 : 6.8;
-    const speakNod = this.isSpeaking ? Math.sin(t * nodSpeed) * 1.7 : 0;
+    const speakNod = this.isSpeaking ? Math.sin(t * nodSpeed) * 1.4 : 0;
     const headTilt =
       expr.headTilt +
-      Math.sin(t * 0.62) * 1.0 +
-      (this.isSpeaking ? Math.sin(t * 4.0) * 1.2 : 0);
+      Math.sin(t * 0.62) * 0.9 +
+      (this.isSpeaking ? Math.sin(t * 4.0) * 1.1 : 0);
 
-    this.headRig.setAttribute(
-      "transform",
-      `translate(${swayX.toFixed(2)}, ${(breathY + speakNod).toFixed(2)}) rotate(${headTilt.toFixed(2)} 210 260)`
-    );
-    this.torsoGroup.setAttribute("transform", `translate(0, ${(breathY * 0.55).toFixed(2)})`);
+    // Pivot head & back hair cleanly around the top of the neck (210, 302)
+    const headTransform = `translate(${swayX.toFixed(2)}, ${(breathY + speakNod).toFixed(2)}) rotate(${headTilt.toFixed(2)} 210 302)`;
+    this.headRig.setAttribute("transform", headTransform);
+    if (this.backHairRig) {
+      this.backHairRig.setAttribute("transform", headTransform);
+    }
+    this.torsoGroup.setAttribute("transform", `translate(0, ${(breathY * 0.45).toFixed(2)})`);
 
     // Subtle cybernetic reticle & iris HUD spin
     const hudSpeed = this.currentExpression === "thinking" ? 48 : 16;

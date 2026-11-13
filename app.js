@@ -182,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeSettingsBtn = document.getElementById("closeSettingsBtn");
   const saveSettingsBtn = document.getElementById("saveSettingsBtn");
   const voiceSelect = document.getElementById("voiceSelect");
+  const micLangSelect = document.getElementById("micLangSelect");
   const rateRange = document.getElementById("rateRange");
   const pitchRange = document.getElementById("pitchRange");
   const rateVal = document.getElementById("rateVal");
@@ -190,17 +191,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const exprButtons = Array.from(document.querySelectorAll(".expr-btn"));
 
-  // Apply Lucy v3 cool netrunner alto defaults once if upgrading from older Lyra defaults
-  if (!localStorage.getItem("lucy_v3_defaults")) {
+  // Apply Lucy v4 defaults & clear any previously cached male voice URI
+  if (!localStorage.getItem("lucy_v4_fixes")) {
     localStorage.setItem("lyra_rate", "0.96");
     localStorage.setItem("lyra_pitch", "0.96");
-    localStorage.setItem("lucy_v3_defaults", "1");
+    const oldVoice = (localStorage.getItem("lyra_voice_uri") || "").toLowerCase();
+    if (!oldVoice || /david|mark|george|daniel|guy|ryan|richard|james|alex|fred|pavel|dmitry|yuri|\bmale\b/.test(oldVoice)) {
+      localStorage.removeItem("lyra_voice_uri");
+    }
+    localStorage.setItem("lucy_v4_fixes", "1");
   }
 
   let voiceEnabled = true;
   let speechRate = Number(localStorage.getItem("lyra_rate")) || 0.96;
   let speechPitch = Number(localStorage.getItem("lyra_pitch")) || 0.96;
   let selectedVoiceURI = localStorage.getItem("lyra_voice_uri") || "";
+  let micLang = localStorage.getItem("lyra_mic_lang") || "en-US";
   let availableVoices = [];
 
   let selectedMoodButton = "auto";
@@ -222,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
   pitchRange.value = String(speechPitch);
   rateVal.textContent = speechRate.toFixed(2);
   pitchVal.textContent = speechPitch.toFixed(2);
+  if (micLangSelect) micLangSelect.value = micLang;
   geminiKeyInput.value = localStorage.getItem("lyra_gemini_key") || "";
 
   function clamp(val, min, max) {
@@ -305,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function stopSpeakingAnimation(playHangup = false) {
+    activeUtterance = null;
     if (lipSyncInterval) {
       clearInterval(lipSyncInterval);
       lipSyncInterval = null;
@@ -547,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (SpeechRecognition) {
     recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
+    recognition.lang = micLang;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
@@ -615,6 +623,11 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedVoiceURI = voiceSelect.value;
     speechRate = Number(rateRange.value);
     speechPitch = Number(pitchRange.value);
+    if (micLangSelect) {
+      micLang = micLangSelect.value;
+      localStorage.setItem("lyra_mic_lang", micLang);
+      if (recognition) recognition.lang = micLang;
+    }
     localStorage.setItem("lyra_voice_uri", selectedVoiceURI);
     localStorage.setItem("lyra_rate", String(speechRate));
     localStorage.setItem("lyra_pitch", String(speechPitch));
