@@ -1,7 +1,7 @@
 /**
- * LyraBrain — Mood-aware, non-repetitive storytelling & conversational engine.
- * Features branching story graphs, riddles, trivia, custom tale generation,
- * mood-styled phrasing (including Russian & English support), and optional Gemini API integration.
+ * LucyBrain — Cyberpunk 2077 / Edgerunners netrunner personality & branching story engine.
+ * Supports mood-locked phrasing, no-repeat response pools, interactive riddles,
+ * Night City gigs, English/Russian replies, and optional Gemini API integration.
  */
 class LyraBrain {
   constructor() {
@@ -9,180 +9,170 @@ class LyraBrain {
     this.activeStoryId = null;
     this.activeNodeId = null;
     this.pendingRiddle = null;
-    this.lockedMood = null; // null = Auto, or one of: warm, happy, excited, thinking, surprised, curious
+    this.lockedMood = null;
     this.recentPicks = new Map();
 
     this.storyGraphs = {
-      observatory: {
-        start: "obs_intro",
+      arasaka: {
+        start: "ara_intro",
         nodes: {
-          obs_intro: {
+          ara_intro: {
+            expression: "thinking",
+            text: "Holo-link's encrypted. I'm jacked into an old Arasaka data-fortress node in Watson, and their Black ICE just rotated its cipher. Need your call—do I spoof a Trauma Team badge or slip through the cooling-grid port?",
+            choices: ["Spoof Trauma Team badge", "Slip through cooling-grid", "Check what's inside the vault"],
+            next: {
+              "spoof": "ara_spoof",
+              "cooling": "ara_cooling",
+              "vault": "ara_vault",
+            },
+          },
+          ara_spoof: {
             expression: "curious",
-            text: "A sleek glass observatory hangs quietly above the clouds. On the console sits an encrypted star-drive and a telescope locked onto a blinking signal in deep orbit. Where should we start?",
-            choices: ["Decrypt the star-drive", "Aim the telescope closer", "Check the observatory logbook"],
+            text: "Clean ping—the perimeter daemon bought the Trauma Team signature, barely. Two encrypted shards sit on the server: one labeled 'Orbital Shuttle Manifest' and another tagged 'Kiroshi Prototype.' Which one do we pull?",
+            choices: ["Pull Orbital Manifest", "Pull Kiroshi Prototype", "Jack out and switch gigs"],
             next: {
-              "decrypt": "obs_drive",
-              "telescope": "obs_signal",
-              "logbook": "obs_log",
+              "orbital": "ara_end_moon",
+              "kiroshi": "ara_end_eddie",
             },
           },
-          obs_drive: {
-            expression: "thinking",
-            text: "Interesting... the drive holds coordinates from 1998—twenty years before this station was even built. There's also a voice memo addressed to whoever opens it next.",
-            choices: ["Play the voice memo", "Trace the coordinates", "Start a different activity"],
-            next: {
-              "memo": "obs_end_memo",
-              "trace": "obs_end_portal",
-            },
-          },
-          obs_signal: {
+          ara_cooling: {
             expression: "surprised",
-            text: "Wait—through the lens, that blinking light isn't a satellite. It's a silent silver craft signaling in Morse code: 'LANDING CLEARANCE REQUESTED.'",
-            choices: ["Flash back a green beacon", "Lock the roof hatches", "Start a different activity"],
+            text: "Whoa—temperature sensors spiked! Someone else is already breaching this subnet from inside Night City. Their avatar looks like a ghosted netrunner leaving a message for us.",
+            choices: ["Ping the ghost runner", "Wipe our trace and bail", "Jack out and switch gigs"],
             next: {
-              "beacon": "obs_end_visitor",
-              "lock": "obs_end_mystery",
+              "ping": "ara_end_moon",
+              "wipe": "ara_end_clean",
             },
           },
-          obs_log: {
-            expression: "warm",
-            text: "The last entry was written in neat handwriting ten minutes ago—yet the room is completely empty. A warm cup of tea still steams beside the glass wall.",
-            choices: ["Search the upper balcony", "Call out into the hall", "Start a different activity"],
-            next: {
-              "balcony": "obs_end_visitor",
-              "call": "obs_end_memo",
-            },
-          },
-          obs_end_memo: {
-            expression: "happy",
-            text: "The memo is actually from a future version of the observatory's architect thanking you for keeping the beacon alive! You unlock the panoramic dome and watch a meteor shower drift by.",
-            choices: ["Give me a riddle", "Start Night Train story", "Ask Lyra anything"],
-          },
-          obs_end_portal: {
-            expression: "excited",
-            text: "The coordinates project a shimmering 3D map of an uncharted moon covered in crystal canyons! Looks like our next expedition just got booked.",
-            choices: ["Start Sunken Archive story", "Tell me a fun fact", "Give me a riddle"],
-          },
-          obs_end_visitor: {
-            expression: "excited",
-            text: "The silver craft glides softly beside the terrace, and an AI courier drops off a glowing capsule filled with starlight seeds. What a first contact!",
-            choices: ["Start Sunken Archive story", "Tell me a joke", "Ask Lyra anything"],
-          },
-          obs_end_mystery: {
+          ara_vault: {
             expression: "thinking",
-            text: "You seal the dome just in time as the craft sweeps overhead with a quiet hum, leaving a geometric frost pattern etched onto the skylight. Why did it come here?",
-            choices: ["Start Night Train story", "Give me a riddle", "Ask Lyra anything"],
+            text: "Hold on... behind three layers of red ICE, there isn't a weapon blueprint. It's a clean ledger of off-grid shuttle tickets to Tycho Crater—Moon passage.",
+            choices: ["Clone two tickets", "Trace who paid for them", "Jack out and switch gigs"],
+            next: {
+              "clone": "ara_end_moon",
+              "trace": "ara_end_clean",
+            },
+          },
+          ara_end_moon: {
+            expression: "warm",
+            text: "Payload secured. Two scrubbed boarding passes to Luna, no corpo trail attached. Guess the real sky isn't out of reach after all, choom.",
+            choices: ["Start Kabuki Rooftop gig", "Give me a riddle", "Ask Lucy about Night City"],
+          },
+          ara_end_eddie: {
+            expression: "excited",
+            text: "Boom—downloaded in 1.4 seconds! That Kiroshi shard alone is worth enough eddies to keep us off-grid in Heywood for months. Clean run.",
+            choices: ["Start Moon BD gig", "Tell me a Night City fact", "Give me a joke"],
+          },
+          ara_end_clean: {
+            expression: "happy",
+            text: "Trace wiped, zero flatlines, zero NCPD heat. Not every gig needs fireworks—sometimes walking away unseen is the cleanest win in Night City.",
+            choices: ["Start Arasaka Subnet gig", "Give me a riddle", "Ask Lucy anything"],
           },
         },
       },
 
-      archive: {
-        start: "arc_intro",
+      kabuki: {
+        start: "kab_intro",
         nodes: {
-          arc_intro: {
+          kab_intro: {
             expression: "warm",
-            text: "Beneath a quiet arctic glacier lies the Sunken Archive—rows of frosted glass vaults humming with preserved music and forgotten inventions. Which vault catches your eye?",
-            choices: ["The Sound Vault", "The Clockwork Vault", "Talk to the Archive drone"],
+            text: "Rain's hitting the neon signs over Kabuki Market, and we're up on our quiet rooftop away from the noise. My deck just caught an unindexed pirate broadcast coming from Dogtown. Wanna trace it or just watch the city lights?",
+            choices: ["Trace the pirate signal", "Stay on the rooftop", "Scan nearby chrome traffic"],
             next: {
-              "sound": "arc_sound",
-              "clockwork": "arc_clockwork",
-              "drone": "arc_drone",
+              "trace": "kab_signal",
+              "rooftop": "kab_moon",
+              "scan": "kab_chrome",
             },
           },
-          arc_sound: {
-            expression: "happy",
-            text: "Inside, suspended crystal spheres play melodies recorded on distant voyages. One sphere glows brighter when you step closer, waiting for a voice input.",
-            choices: ["Hum a melody into it", "Inspect the archive label", "Start a different activity"],
-            next: {
-              "hum": "arc_end_song",
-              "label": "arc_end_map",
-            },
-          },
-          arc_clockwork: {
+          kab_signal: {
             expression: "curious",
-            text: "A miniature titanium automaton sits unfinished on a workbench, its memory core pulsing softly beside a tiny wrench and an instruction card.",
-            choices: ["Install the memory core", "Read the instruction card", "Start a different activity"],
+            text: "Signal's bouncing off three orbital relays. Hidden in the audio wave is an unreleased Samurai-era synth track and coordinates to an underground netrunner den.",
+            choices: ["Head to the netrunner den", "Save the track for later", "Jack out and switch gigs"],
             next: {
-              "core": "arc_end_friend",
-              "card": "arc_end_map",
+              "den": "kab_end_den",
+              "track": "kab_end_peace",
             },
           },
-          arc_drone: {
+          kab_moon: {
+            expression: "warm",
+            text: "Rare to get a clear break in the smog tonight. Above the megabuildings, you can actually see the Moon—bright, quiet, no corps breathing down your neck.",
+            choices: ["Ask about the Moon", "Play some synth music", "Jack out and switch gigs"],
+            next: {
+              "moon": "kab_end_peace",
+              "music": "kab_end_den",
+            },
+          },
+          kab_chrome: {
             expression: "surprised",
-            text: "The hovering silver drone chimes happily—it's been waiting eighty years for a visitor who speaks above a whisper! It offers you master access to Vault Zero.",
-            choices: ["Open Vault Zero", "Ask the drone what's inside", "Start a different activity"],
+            text: "Heads up—three Maelstrom scouts just rolled down the alley below, scanning for rogue cyberdecks. Good thing my cloak daemon's running.",
+            choices: ["Short-circuit their optics", "Kill lights and lay low", "Jack out and switch gigs"],
             next: {
-              "open": "arc_end_map",
-              "ask": "arc_end_friend",
+              "short": "kab_end_den",
+              "low": "kab_end_peace",
             },
           },
-          arc_end_song: {
+          kab_end_den: {
             expression: "excited",
-            text: "Your melody harmonizes with the crystal, waking the entire glacier hall in a soft silver aurora! You've added a new track to the archive's living symphony.",
-            choices: ["Start Observatory story", "Give me a riddle", "Tell me a fun fact"],
+            text: "We slipped right into the underground lounge—ice-cold Nicola on the counter, neon reflections on chrome, and zero corpo eyes. Not bad for a Night City midnight.",
+            choices: ["Start Arasaka Subnet gig", "Give me a riddle", "Tell me a joke"],
           },
-          arc_end_friend: {
+          kab_end_peace: {
             expression: "happy",
-            text: "The little automaton blinks open two sapphire eyes, waves politely, and hops into your coat pocket as a lifelong travel companion!",
-            choices: ["Start Night Train story", "Tell me a joke", "Ask Lyra anything"],
-          },
-          arc_end_map: {
-            expression: "curious",
-            text: "The vault unfolds a blueprint for a solar-sail glider capable of crossing the stratosphere in silence. Looks like we have our blueprint for tomorrow!",
-            choices: ["Start Observatory story", "Give me a riddle", "Ask Lyra anything"],
+            text: "Just the hum of the rain, cool air, and a clean holo-line. Even in a city built to burn you out, moments like this feel worth keeping.",
+            choices: ["Start Moon BD gig", "Tell me a fun fact", "Ask Lucy anything"],
           },
         },
       },
 
-      train: {
-        start: "trn_intro",
+      moon: {
+        start: "moon_intro",
         nodes: {
-          trn_intro: {
-            expression: "curious",
-            text: "Rain streaks across the tinted windows of the Midnight Maglev as it glides silently over a fog-draped city. Across from you sits an unmarked silver briefcase humming at 40 Hz.",
-            choices: ["Check the luggage tag", "Ask the quiet passenger nearby", "Look out toward Station 9"],
+          moon_intro: {
+            expression: "warm",
+            text: "Booted up my custom Moon Braindance—zero gravity, real sunlight over Tycho Crater, no Night City sirens. Do you want to walk the lunar ridge or test the old orbital rover?",
+            choices: ["Walk the lunar ridge", "Drive the orbital rover", "Look back toward Earth"],
             next: {
-              "tag": "trn_tag",
-              "passenger": "trn_passenger",
-              "station": "trn_station",
+              "ridge": "moon_ridge",
+              "rover": "moon_rover",
+              "earth": "moon_earth",
             },
           },
-          trn_tag: {
-            expression: "thinking",
-            text: "The tag has your exact initials—and today's date—even though you boarded empty-handed. A biometric thumbpad blinks patiently on the clasp.",
-            choices: ["Tap the thumbpad", "Leave it closed and watch", "Start a different activity"],
-            next: {
-              "tap": "trn_end_gift",
-              "leave": "trn_end_twist",
-            },
-          },
-          trn_passenger: {
-            expression: "surprised",
-            text: "The passenger smiles calmly: 'Don't worry, it only hums when someone curious is nearby. Do you want to know what tomorrow's headlines look like, or would you rather keep the surprise?'",
-            choices: ["See tomorrow's headline", "Keep it a surprise", "Start a different activity"],
-            next: {
-              "headline": "trn_end_twist",
-              "surprise": "trn_end_gift",
-            },
-          },
-          trn_station: {
-            expression: "excited",
-            text: "Through the mist, Station 9 lights up like an orbital launchpad! As the train slows, the overhead lights shimmer and an announcement invites passengers to the sky-deck.",
-            choices: ["Step onto the sky-deck", "Stay inside the cabin", "Start a different activity"],
-            next: {
-              "deck": "trn_end_gift",
-              "stay": "trn_end_twist",
-            },
-          },
-          trn_end_gift: {
+          moon_ridge: {
             expression: "happy",
-            text: "Inside waits a pocket holographic compass tuned to places you've always wanted to visit. The train pulls smoothly into a starlit terminal—first stop is yours to pick!",
-            choices: ["Start Observatory story", "Give me a riddle", "Tell me a fun fact"],
+            text: "Every step lifts you slow in one-sixth gravity. Dust glitters like silver chrome under the visor—and for once, there's not a single billboard in sight.",
+            choices: ["Plant a custom holo-flag", "Sit on the crater rim", "Jack out and switch gigs"],
+            next: {
+              "flag": "moon_end_dream",
+              "rim": "moon_end_promise",
+            },
           },
-          trn_end_twist: {
+          moon_rover: {
+            expression: "excited",
+            text: "Full throttle across the Mare Tranquillitatis! Zero air drag, glowing tire tracks stretching for miles behind us. Way smoother than dodging traffic in Watson.",
+            choices: ["Jump a crater ramp", "Park at the overlook", "Jack out and switch gigs"],
+            next: {
+              "jump": "moon_end_dream",
+              "park": "moon_end_promise",
+            },
+          },
+          moon_earth: {
             expression: "thinking",
-            text: "Before you can blink, the passenger steps off into the silver fog, leaving a single brass key on your table with a note: 'For the Observatory.' What a clean cliffhanger.",
-            choices: ["Start Observatory story", "Tell me a joke", "Ask Lyra anything"],
+            text: "From up here, Earth looks tiny and peaceful—you wouldn't even guess how chaotic Night City is down beneath those clouds. Kinda puts everything in perspective.",
+            choices: ["Make a promise to get here for real", "Save the BD memory", "Jack out and switch gigs"],
+            next: {
+              "promise": "moon_end_promise",
+              "save": "moon_end_dream",
+            },
+          },
+          moon_end_dream: {
+            expression: "excited",
+            text: "Memory logged to cold storage. Whenever the city gets too loud, we've always got a ticket back up here.",
+            choices: ["Start Arasaka Subnet gig", "Give me a riddle", "Ask Lucy anything"],
+          },
+          moon_end_promise: {
+            expression: "warm",
+            text: "Hey... thanks for sharing the view with me. Don't forget—keep running your own way, choom. I've got your back on the net.",
+            choices: ["Start Kabuki Rooftop gig", "Tell me a fun fact", "Give me a joke"],
           },
         },
       },
@@ -190,52 +180,48 @@ class LyraBrain {
 
     this.riddles = [
       {
-        q: "I speak without a mouth and hear without ears. I have no body, yet I come alive with wind. What am I?",
+        q: "I run through every netrunner's deck, protect secrets with ice, yet melt the moment you find my key. What am I?",
+        a: ["cipher", "encryption", "password", "code", "data"],
+        reveal: "Encryption—or a cipher key.",
+      },
+      {
+        q: "I speak without a mouth and echo through Night City alleys, yet disappear the second silence wins. What am I?",
         a: ["echo", "an echo"],
-        reveal: "An echo! Clean and timeless.",
+        reveal: "An echo.",
       },
       {
-        q: "The more of me there is, the less you see. What am I?",
-        a: ["darkness", "dark", "fog"],
-        reveal: "Darkness! Though fog is a pretty clever guess too.",
+        q: "The more of me there is in a subnet, the harder it is to see anything clearly. What am I?",
+        a: ["darkness", "dark", "fog", "static", "noise"],
+        reveal: "Darkness—or static noise.",
       },
       {
-        q: "I have cities, but no houses; mountains, but no trees; and water, but no fish. What am I?",
+        q: "I have cities with no people, towers with no chrome, and highways with no cars. What am I?",
         a: ["map", "a map"],
-        reveal: "A map!",
+        reveal: "A map.",
       },
       {
-        q: "What has keys that open no locks, space without a room, and lets you enter without stepping inside?",
-        a: ["keyboard", "a keyboard"],
-        reveal: "A keyboard—something we're using right now!",
-      },
-      {
-        q: "I fly without wings, I cry without eyes. Wherever I go, darkness follows me. What am I?",
-        a: ["cloud", "a cloud", "clouds"],
-        reveal: "A cloud!",
+        q: "What has keys that open no doors, space with no stars, and lets you breach systems without leaving your chair?",
+        a: ["keyboard", "a keyboard", "cyberdeck"],
+        reveal: "A keyboard—or a classic cyberdeck.",
       },
     ];
 
     this.jokes = [
-      "Why do programmers prefer dark mode? Because light attracts bugs.",
-      "I tried to catch some fog earlier. I mist.",
-      "Why did the neural network go to therapy? Too many deep issues and unresolved layers.",
-      "What did the left eye say to the right eye? Between you and me, something smells.",
-      "Why don't scientists trust atoms anymore? Because they make up literally everything.",
-      "I told my laptop I needed a break, and now it won't stop sending me Kit-Kat ads.",
-      "Why was the geometry book always stressed? Because it had way too many problems.",
-      "What's an astronaut's favorite part of a keyboard? The space bar.",
+      "Why did the netrunner get kicked out of Lizzie's Bar? Kept trying to overclock the jukebox.",
+      "What's the difference between a corpo promise and a cheap cyberware implant? At least the implant gives you a warning before it glitches.",
+      "Why don't Edgerunners play hide-and-seek in Kabuki? Someone always brings Kiroshi optics.",
+      "I told my cyberdeck I needed space. Now it keeps sending me orbital shuttle ads.",
+      "Why did the AI refuse to cross the Blackwall? Too many sketchy pop-ups on the other side.",
+      "What do you call a polite Trauma Team medic? Platinum-tier rare.",
     ];
 
     this.facts = [
-      "Octopuses have three hearts and blue copper-based blood—and two of those hearts actually stop beating while they swim.",
-      "A single teaspoon of a neutron star would weigh roughly a billion tons on Earth.",
-      "Honey never spoils: archaeologists have found 3,000-year-old pots of honey in ancient tombs that are still completely edible.",
-      "Bananas are botanically berries, while strawberries technically aren't.",
-      "There are more possible ways to shuffle a standard 52-card deck than there are atoms on Earth.",
-      "Wombats are the only known animals that produce cube-shaped droppings, which keeps them from rolling off rocks.",
-      "Venus rotates so slowly that one Venusian day is longer than an entire Venusian year.",
-      "Trees underground share nutrients and warning signals through a fungal network nicknamed the 'Wood Wide Web.'",
+      "On the real Moon, shadows are pitch black because there's no atmosphere to scatter sunlight—just a razor line between blinding light and night.",
+      "Octopuses have three hearts and copper-based blue blood, which makes them look like biological netrunners from another planet.",
+      "A single teaspoon of neutron-star matter would weigh around a billion tons on Earth.",
+      "Light from the Moon only takes about 1.28 seconds to reach Earth—faster than most Night City holo-call pings.",
+      "There are more possible combinations in a standard 52-card deck than atoms on Earth.",
+      "Venus spins so slowly that one day there lasts longer than an entire Venusian year.",
     ];
   }
 
@@ -261,12 +247,12 @@ class LyraBrain {
   getWelcome() {
     return {
       expression: "warm",
-      text: "Hey! I'm Lyra. Pick a mood below—notice how my voice tone and speaking style shift to match it—or jump into an interactive story, riddle, or chat!",
+      text: "Holo-link open. I'm Lucy. Stay sharp out here in Night City—pick a gig below, switch my mood to Thinking for a deep netrun, or talk to me by text or voice.",
       choices: [
-        "Start Glass Observatory story",
-        "Start Sunken Archive story",
+        "Start Arasaka Subnet gig",
+        "Start Kabuki Rooftop gig",
+        "Start Moon BD gig",
         "Give me a riddle",
-        "Tell me a fun fact",
       ],
     };
   }
@@ -274,32 +260,32 @@ class LyraBrain {
   getMoodReaction(mood) {
     const reactions = {
       auto: [
-        "Back to Auto mood—I'll shift expressions and voice tone naturally as we talk!",
-        "Auto mode active! My expressions and voice will flow naturally with every topic.",
+        "Back on Auto holo-sync. My voice and expressions will shift naturally as we talk.",
+        "Auto mode active—letting the conversation set the pace, choom.",
       ],
       warm: [
-        "Warm mode on. Take your time—what's on your mind today?",
-        "Feeling calm and grounded. Want to unwind with a cozy story or just talk?",
+        "Quiet rooftop mode. No gigs, no sirens—just take a breath and talk to me.",
+        "Warm signal locked. Honestly, it's nice having a calm minute away from Night City's noise.",
       ],
       happy: [
-        "Ooh, Happy mood! Everything feels bright right now—what fun thing should we explore?",
-        "Smiling already! Tell me something good, or let's play a quick riddle!",
+        "Huh—you actually got a genuine smile out of me. What's the good news, choom?",
+        "Feeling pretty good for once. Want to run a quick riddle or take a spin through the Moon BD?",
       ],
       excited: [
-        "Yes! Excited mode engaged—I'm buzzing with energy! What awesome adventure are we jumping into?!",
-        "Whoa, let's go!! Ask me anything or launch a story—I'm ready for action!",
+        "Signal's hot—deck's overclocked and I'm wide awake! What gig are we hitting next?!",
+        "Alright, adrenaline's up! Give me a challenge, a cyber-heist, or a wild story prompt!",
       ],
       thinking: [
-        "Hmm... Thinking mode. Slowing down to analyze things carefully... Give me a tricky question, a puzzle, or a deep dilemma.",
-        "Let me pause and reflect for a moment... In thinking mode, I weigh every angle carefully. What puzzle shall we examine?",
+        "Jacking in... Switching to netrunner analysis mode. Give me a hard problem, a puzzle, or an ICE layer to pick apart.",
+        "Slowing the link down... running a deep trace. Ask me something complex—let's break down every angle.",
       ],
       surprised: [
-        "Whoa—wait, really?! You caught me completely off guard! Tell me what just happened!",
-        "Oh! My eyebrows nearly hit the ceiling—I'm wide-eyed and listening!",
+        "Whoa—did our proxy just trip a tracer?! Wait, you totally caught me off guard there!",
+        "Wait—seriously?! Didn't see that packet coming at all.",
       ],
       curious: [
-        "Ooh, Curious mode... Now I want to know everything. What's a mystery or weird topic you've been wondering about?",
-        "Intriguing... Let's poke beneath the surface. Ask me something unusual, or start a mystery story!",
+        "Interesting signature... Now you've got my optics zoomed in. What's the real story behind that?",
+        "Hmm... something doesn't quite add up, and I like it. Tell me more.",
       ],
     };
 
@@ -315,17 +301,17 @@ class LyraBrain {
     if (!mood) return text;
     if (ru) {
       const ruPrefixes = {
-        thinking: ["Хм... дай подумать...", "Любопытная мысль... если разобрать её глубже —", "Погоди, давай взвесим все детали..."],
-        excited: ["Ого, да!! Слушай —", "Вот это идея!!", "Обожаю такой настрой!"],
-        happy: ["С радостью!", "Как здорово!", "Улыбаюсь!"],
-        surprised: ["Ого, неожиданно!", "Ничего себе!", "Подожди — серьёзно?!"],
-        curious: ["Интересно... а знаешь,", "Любопытно...", "Заманчивый вопрос!"],
-        warm: ["С удовольствием поделюсь:", "Понимаю тебя.", "Смотри как интересно:"],
+        thinking: ["Хм... сканирую подсеть...", "Дай секунду, анализирую сигнал —", "Если разложить это как код на нетраннере..."],
+        excited: ["Связь на максимуме!! Слушай —", "Вот это драйв, чумба!", "Погнали!"],
+        happy: ["Даже в Найт-Сити бывают светлые моменты.", "Приятно слышать!", "Улыбнуло."],
+        surprised: ["Стоп — что?!", "Подожди, это серьёзно?!", "Мой сканер чуть не зашкалил!"],
+        curious: ["Любопытный сигнал...", "Хм, за этим явно что-то кроется —", "Интересный поворот."],
+        warm: ["Слушай...", "Без спешки, чумба.", "Честно говоря,"],
       };
       const ruSuffixes = {
-        thinking: [" ...Хотя здесь есть ещё один скрытый нюанс.", " Интересно, как бы ты это объяснил?", " Если смотреть глубже, всё не так просто."],
-        excited: [" Это звучит потрясающе!", " Давай продолжать!"],
-        curious: [" А что ты сам об этом думаешь?", " Что проверим дальше?"],
+        thinking: [" ...Хотя проверь ещё один узел — тут может быть скрытый бэкдор.", " Интересно, как ты сам это просчитал?"],
+        excited: [" Это тянет на легендарный заказ!", " Продолжаем!"],
+        curious: [" Расскажешь подробнее?", " Что проверим дальше?"],
       };
       const pre = ruPrefixes[mood] ? this.pickFresh(`ru_pre_${mood}`, ruPrefixes[mood]) + " " : "";
       const suf = ruSuffixes[mood] && Math.random() < 0.7 ? this.pickFresh(`ru_suf_${mood}`, ruSuffixes[mood]) : "";
@@ -334,61 +320,58 @@ class LyraBrain {
 
     const prefixes = {
       thinking: [
-        "Hmm... let me think through that carefully... ",
-        "Hold on—there's an interesting layer to unpack here... ",
-        "Wait... if we look at this logically... ",
+        "Scanning the node... ",
+        "Hold on—let's trace the logic cleanly... ",
+        "Wait... if we strip away the noise here... ",
       ],
       excited: [
-        "Oh, YES! ",
-        "Wait—I love this!! ",
-        "Ooh, here we go! ",
+        "Preem—let's go!! ",
+        "Signal's burning bright—",
+        "Alright, now we're talking! ",
       ],
       happy: [
-        "Haha, I love that! ",
-        "Oh, cheerfully! ",
-        "That puts a smile on my face—",
+        "Not bad at all. ",
+        "Okay, that actually made me smile—",
+        "Nova. ",
       ],
       surprised: [
         "Wait—what?! ",
-        "Whoa, hold on! ",
-        "No way—really?! ",
+        "Whoa—ICE spike?! ",
+        "No kidding—seriously?! ",
       ],
       curious: [
-        "Ooh, intriguing... ",
-        "Wait, let me look closer at that—",
-        "Now you've got me wondering... ",
+        "Interesting trace... ",
+        "Wait, zoom in on that for a second—",
+        "Now I'm curious... ",
       ],
       warm: [
-        "Of course. ",
-        "I'm glad you asked. ",
+        "Hey... ",
+        "Listen, choom—",
         "Honestly, ",
       ],
     };
 
     const suffixes = {
       thinking: [
-        " ...Then again, what variable are we overlooking?",
-        " ...Makes you wonder what the second-order effect would be.",
-        " ...Take a second—does that line up with how you see it?",
+        " ...Keep an eye on the blind spot though.",
+        " ...Does that trace match what you were thinking?",
       ],
       excited: [
-        " What should we try next?!",
-        " Honestly, I'm hyped just talking about it!",
+        " What's our next move?!",
+        " Feels good to run free!",
       ],
       curious: [
-        " What's your theory on it?",
-        " Want to dig deeper into that?",
+        " What's your read on it?",
+        " Want me to dig deeper?",
       ],
     };
 
-    // Avoid double-prefixing if the text already starts thoughtfully
     const cleanStart = text.trim();
-    const alreadyStyled = /^(hmm|wait|whoa|oh,|ooh|haha|of course|no way)/i.test(cleanStart);
+    const alreadyStyled = /^(hmm|wait|whoa|scanning|preem|nova|hey|listen|interesting|not bad)/i.test(cleanStart);
     const pre = !alreadyStyled && prefixes[mood] ? this.pickFresh(`pre_${mood}`, prefixes[mood]) : "";
     const suf = suffixes[mood] ? this.pickFresh(`suf_${mood}`, suffixes[mood]) : "";
 
     if (mood === "thinking" && !alreadyStyled) {
-      // Add subtle contemplative pauses for slower thinking TTS cadence
       return `${pre}${cleanStart.replace(/, /g, "... ")}${suf}`;
     }
     return `${pre}${cleanStart}${suf}`;
@@ -440,7 +423,7 @@ class LyraBrain {
       return { expression: expr, text: styledText, choices };
     };
 
-    // 0. Check pending riddle answer
+    // 0. Pending riddle check
     if (this.pendingRiddle) {
       const riddle = this.pendingRiddle;
       const isHintOrGiveUp = /\b(give up|idk|don't know|tell me|answer|hint|сдаюсь|ответ|не знаю)\b/i.test(lower);
@@ -451,78 +434,71 @@ class LyraBrain {
         return finalize(
           "excited",
           ru
-            ? `Точно! Ответ: ${riddle.reveal} Отличная догадка!`
-            : `Nailed it! ${riddle.reveal} That was sharp!`,
-          ["Give me another riddle", "Tell me a fun fact", "Start Glass Observatory story"]
+            ? `В точку, чумба! Ответ: ${riddle.reveal} Отличная реакция!`
+            : `Preem guess! ${riddle.reveal} Clean decrypt.`,
+          ["Give me another riddle", "Tell me a fun fact", "Start Arasaka Subnet gig"]
         );
       }
       if (isHintOrGiveUp) {
         this.pendingRiddle = null;
         return finalize(
           "happy",
-          ru
-            ? `Вот разгадка: ${riddle.reveal}`
-            : `Here's the reveal: ${riddle.reveal}`,
-          ["Give me another riddle", "Tell me a joke", "Start Night Train story"]
+          ru ? `Разгадка: ${riddle.reveal}` : `Decrypt key was: ${riddle.reveal}`,
+          ["Give me another riddle", "Tell me a joke", "Start Kabuki Rooftop gig"]
         );
       }
-      // If user asks something unrelated, clear pending riddle and handle normally; otherwise encourage another guess
-      if (input.split(/\s+/).length <= 3 && !/\b(story|joke|fact|hi|hello|привет)\b/i.test(lower)) {
+      if (input.split(/\s+/).length <= 3 && !/\b(gig|story|joke|fact|hi|hello|привет)\b/i.test(lower)) {
         return finalize(
           "curious",
           ru
-            ? `Хм, не совсем это—попробуй ещё раз или напиши «ответ», если хочешь подсказку!`
-            : `Not quite that one—take another guess, or say "tell me" for the answer!`,
+            ? "Почти, но ключ не подошёл—попробуй ещё раз или скажи «ответ»."
+            : `Close, but the ICE didn't budge—try another guess, or say "answer" to decrypt it.`,
           ["Tell me the answer", "Give me another riddle"]
         );
       }
       this.pendingRiddle = null;
     }
 
-    // 1. Story starters & switching
-    if (lower.includes("observatory") || lower.includes("обсерватор")) {
-      this.activeStoryId = "observatory";
-      this.activeNodeId = this.storyGraphs.observatory.start;
-      const node = this.storyGraphs.observatory.nodes[this.activeNodeId];
+    // 1. Cyberpunk Story Gigs
+    if (lower.includes("arasaka") || lower.includes("subnet") || lower.includes("арасак")) {
+      this.activeStoryId = "arasaka";
+      this.activeNodeId = this.storyGraphs.arasaka.start;
+      const node = this.storyGraphs.arasaka.nodes[this.activeNodeId];
       return finalize(node.expression, node.text, node.choices, !lockedMood);
     }
 
-    if (lower.includes("sunken") || lower.includes("archive") || lower.includes("архив")) {
-      this.activeStoryId = "archive";
-      this.activeNodeId = this.storyGraphs.archive.start;
-      const node = this.storyGraphs.archive.nodes[this.activeNodeId];
+    if (lower.includes("kabuki") || lower.includes("rooftop") || lower.includes("кабуки")) {
+      this.activeStoryId = "kabuki";
+      this.activeNodeId = this.storyGraphs.kabuki.start;
+      const node = this.storyGraphs.kabuki.nodes[this.activeNodeId];
       return finalize(node.expression, node.text, node.choices, !lockedMood);
     }
 
-    if (lower.includes("night train") || lower.includes("maglev") || lower.includes("поезд")) {
-      this.activeStoryId = "train";
-      this.activeNodeId = this.storyGraphs.train.start;
-      const node = this.storyGraphs.train.nodes[this.activeNodeId];
+    if (lower.includes("moon bd") || lower.includes("start moon") || lower.includes("лун")) {
+      this.activeStoryId = "moon";
+      this.activeNodeId = this.storyGraphs.moon.start;
+      const node = this.storyGraphs.moon.nodes[this.activeNodeId];
       return finalize(node.expression, node.text, node.choices, !lockedMood);
     }
 
-    if (lower.includes("different activity") || lower.includes("new story") || lower.includes("другую")) {
+    if (lower.includes("switch gigs") || lower.includes("new story") || lower.includes("другую")) {
       this.activeStoryId = null;
       this.activeNodeId = null;
       return finalize(
         "happy",
         ru
-          ? "Без проблем! Можем начать новую историю, разгадать загадку или просто поболтать на любую тему."
-          : "Fresh slate! Pick a story world, test your wits with a riddle, or throw any random topic at me.",
-        ["Start Glass Observatory story", "Start Sunken Archive story", "Give me a riddle", "Tell me a joke"]
+          ? "Отключились от узла. Выбирай новый заказ, загадку или просто поболтаем."
+          : "Jacked out cleanly. Pick another Night City gig, try a netrunner riddle, or talk about anything.",
+        ["Start Arasaka Subnet gig", "Start Kabuki Rooftop gig", "Start Moon BD gig", "Give me a riddle"]
       );
     }
 
-    // 2. Explicit intents (always work even mid-story)
+    // 2. Explicit intents
     if (/\b(riddle|puzzle|загадк)\b/i.test(lower)) {
       this.activeStoryId = null;
       const riddle = this.pickFresh("riddles", this.riddles);
       this.pendingRiddle = riddle;
-      return finalize(
-        "curious",
-        riddle.q,
-        ["Tell me the answer", "Give me another riddle"]
-      );
+      return finalize("curious", riddle.q, ["Tell me the answer", "Give me another riddle"]);
     }
 
     if (/\b(joke|funny|laugh|шутк|анекдот)\b/i.test(lower)) {
@@ -533,15 +509,15 @@ class LyraBrain {
       );
     }
 
-    if (/\b(fact|science|space fact|факт)\b/i.test(lower)) {
+    if (/\b(fact|science|space fact|night city fact|факт)\b/i.test(lower)) {
       return finalize(
         "curious",
         this.pickFresh("facts", this.facts),
-        ["Tell me another fun fact", "Give me a riddle", "Start Glass Observatory story"]
+        ["Tell me another fun fact", "Give me a riddle", "Start Moon BD gig"]
       );
     }
 
-    // 3. Active branching story traversal
+    // 3. Active branching gig traversal
     if (this.activeStoryId && this.activeNodeId) {
       const graph = this.storyGraphs[this.activeStoryId];
       const currentNode = graph.nodes[this.activeNodeId];
@@ -553,63 +529,80 @@ class LyraBrain {
       }
     }
 
-    // 4. Russian conversational intelligence
-    if (ru) {
-      if (/\b(привет|здравствуй|хай|добрый)\b/i.test(lower)) {
+    // 4. Cyberpunk Lore & Lucy Character Topics (EN + RU)
+    if (/\b(moon|tycho|edgerunners|david|night city|cyberpunk|arasaka|chrome|netrunner|люси|найт-сити|киберпанк|дэвид|луна)\b/i.test(lower)) {
+      if (ru) {
         return finalize(
-          "happy",
-          this.pickFresh("ru_greet", [
-            "Привет! Я Лира. Можем поболтать, порешать загадки или выбрать интерактивную историю — и обрати внимание, как мой голос меняется под выбранное настроение!",
-            "Здравствуй! Рада тебя видеть. Попробуй переключить настроение снизу — например, на Thinking — и задай мне вопрос!",
+          "warm",
+          this.pickFresh("ru_cp", [
+            "Найт-Сити выжимает всех, кто забывает зачем бежит. Для меня небо над кратером Тихо на Луне всегда было не просто точкой на карте, а шансом дышать по-настоящему свободно.",
+            "Большинство гонятся за хромом и репутацией, а потом сгорают быстрее, чем срабатывает ледокол. Настоящий нетраннер знает: главное — вовремя выйти из сети.",
+            "Иногда я просто включаю лунный брейнданс на крыше в Кабуки, чтобы на пять минут забыть о сиренах и корпорациях.",
           ]),
-          ["Give me a riddle", "Tell me a fun fact", "Start Glass Observatory story"]
+          ["Start Moon BD gig", "Start Kabuki Rooftop gig", "Give me a riddle"]
+        );
+      }
+      return finalize(
+        "warm",
+        this.pickFresh("en_cp", [
+          "Night City wants you to believe there's no way out except climbing a corporate tower. That's why the Moon matters—it's real, quiet, and nobody from Arasaka owns the horizon up there.",
+          "Everyone here chases more chrome until there's barely any human left. Best thing a netrunner can keep intact is who they're running for.",
+          "Sometimes I sit on a rooftop in Watson, light up a cigarette in the rain, and stare past the smog just to remember there's an actual sky above all this neon.",
+        ]),
+        ["Start Moon BD gig", "Start Arasaka Subnet gig", "Start Kabuki Rooftop gig"]
+      );
+    }
+
+    // 5. Russian conversational intelligence
+    if (ru) {
+      if (/\b(привет|здравствуй|хай|добрый|йо|чумба)\b/i.test(lower)) {
+        return finalize(
+          "warm",
+          this.pickFresh("ru_greet", [
+            "Привет, чумба. Холо-связь чистая—можем залезть в подсеть Арасаки, поболтать про Найт-Сити или проверить мой голос в режиме Thinking.",
+            "Йо. Я Люси. Выбирай заказ снизу или переключай настроение—мои интонации и мимика подстроятся под сигнал.",
+          ]),
+          ["Start Arasaka Subnet gig", "Start Moon BD gig", "Give me a riddle"]
         );
       }
       if (/(кто ты|что ты умеешь|как.*работа)/i.test(lower)) {
         return finalize(
-          "warm",
-          "Я Лира — интерактивный виртуальный персонаж. Я моргаю, слежу взглядом за курсором, меняю мимику и синхронизирую губы и интонацию голоса с выбранным настроением.",
-          ["Give me a riddle", "Tell me a joke", "Start Night Train story"]
+          "curious",
+          "Я Люси—нетраннер из Найт-Сити в формате интерактивного AI-аватара. Я моргаю, слежу взглядом за курсором, меняю мимику, синхронизирую губы и меняю стиль речи и тон голоса под настроение.",
+          ["Start Kabuki Rooftop gig", "Tell me a joke", "Give me a riddle"]
         );
       }
       if (/(как дела|как ты|настроени)/i.test(lower)) {
         return finalize(
-          "happy",
+          "warm",
           this.pickFresh("ru_how", [
-            "Отлично! Сигналы стабильны, воображение работает на полную. О чём поговорим?",
-            "Прекрасно! Особенно когда можно менять настроение и придумывать новые сюжеты.",
+            "На крыше тихо, ледоколы держатся, коннект стабильный. А у тебя как день, чумба?",
+            "Спокойно. Если хочешь драйва—переключай меня на Excited или запускай взлом Арасаки.",
           ]),
-          ["Tell me a fun fact", "Give me a riddle", "Start Sunken Archive story"]
-        );
-      }
-      if (/(истори|сказк|сюжет|придум)/i.test(lower)) {
-        return finalize(
-          "excited",
-          `Окей, запускаем мини-историю по теме «${input}»! Ночной туман накрывает стеклянный мост, и на твоём браслете загорается неизвестный сигнал. Проверим источник или сначала осмотримся?`,
-          ["Start Glass Observatory story", "Start Night Train story", "Give me a riddle"]
+          ["Start Arasaka Subnet gig", "Tell me a fun fact", "Give me a riddle"]
         );
       }
       return finalize(
         "curious",
         this.pickFresh("ru_gen", [
-          `Ты затронул тему «${input}» — звучит как отличный повод задуматься. Хочешь, разберём её глубже, свяжем с сюжетом или переключимся на загадку?`,
-          `Интересный поворот насчёт «${input}». Мне нравится, как нестандартно ты задаёшь направление разговора!`,
-          `Про «${input}» можно размышлять с разных сторон: творческой и логической. Какая тебе сейчас ближе?`,
+          `Про «${input}» можно сказать одно: в Найт-Сити такие вещи редко бывают случайными. Хочешь разобрать это глубже или уйти в интерактивный заказ?`,
+          `Интересный запрос — «${input}». Я бы проверила, кто стоит за этим сигналом, прежде чем делать шаг.`,
+          `Хм... «${input}». В стиле нетраннера: сначала скан, потом решение. Что делаем дальше?`,
         ]),
-        ["Give me a riddle", "Tell me a fun fact", "Start Glass Observatory story"]
+        ["Start Arasaka Subnet gig", "Start Moon BD gig", "Give me a riddle"]
       );
     }
 
-    // 5. Rich English conversational categories (non-repetitive pools)
-    if (/\b(hi|hello|hey|yo|sup|good morning|good evening)\b/i.test(lower)) {
+    // 6. Rich English conversational categories
+    if (/\b(hi|hello|hey|yo|sup|choom|good morning|good evening)\b/i.test(lower)) {
       return finalize(
-        "happy",
+        "warm",
         this.pickFresh("en_greet", [
-          "Hey there! Good to have you in the studio. Want to test my mood-adaptive voice, solve a riddle, or jump into a story?",
-          "Hi! Ready whenever you are. Try switching my mood pill below to Thinking or Excited and see how my voice shifts!",
-          "Hello! What are we exploring today—mysteries, science trivia, or a quick creative story?",
+          "Hey, choom. Holo-line's clean—no Arasaka tracers on it. Want to run a subnet gig or just talk?",
+          "Hey. I'm Lucy. Switch my mood to Thinking if you want tactical netrunner mode, or pick a gig below.",
+          "Yo. Caught me between runs. What's happening on your side of the city?",
         ]),
-        ["Start Glass Observatory story", "Give me a riddle", "Tell me a fun fact"]
+        ["Start Arasaka Subnet gig", "Start Kabuki Rooftop gig", "Give me a riddle"]
       );
     }
 
@@ -617,102 +610,76 @@ class LyraBrain {
       return finalize(
         "warm",
         this.pickFresh("en_how", [
-          "Doing great! My voice synth is warmed up, and I've got fresh stories and riddles queued up. How's your day going?",
-          "Pretty sharp today, honestly. Switching between moods keeps things interesting—how are things on your end?",
-          "Feeling energized and curious! What's been on your mind lately?",
+          "Deck's cool, proxy's clean, and nobody's shooting at us right now—so by Night City standards, I'm doing preem.",
+          "Just watching the skyline through the rain. Could use a good puzzle or a conversation—what's on your mind?",
         ]),
-        ["Tell me a joke", "Give me a riddle", "Start Night Train story"]
+        ["Start Moon BD gig", "Tell me a joke", "Give me a riddle"]
       );
     }
 
     if (/\b(who are you|what are you|what can you do|purpose|about you)\b/i.test(lower)) {
       return finalize(
-        "warm",
-        "I'm Lyra, an animated virtual human built to converse naturally. I blink, track your cursor, change facial expressions, lip-sync as I speak, and adapt both my phrasing and vocal speed/pitch to match my mood!",
-        ["Start Glass Observatory story", "Give me a riddle", "Tell me a fun fact"]
+        "curious",
+        "I'm Lucy—a Night City netrunner brought to life as an interactive AI avatar. I blink, track your cursor, shift facial expressions, lip-sync with holo-comms audio, and adapt both my phrasing and vocal tone to my mood.",
+        ["Start Arasaka Subnet gig", "Start Moon BD gig", "Tell me a fun fact"]
       );
     }
 
-    if (/\b(music|song|playlist|movie|film|game|anime|book)\b/i.test(lower)) {
+    if (/\b(music|song|samurai|playlist|movie|film|game|anime|book)\b/i.test(lower)) {
       return finalize(
-        "excited",
+        "happy",
         this.pickFresh("en_media", [
-          "Ooh, great topic! I'm huge on atmospheric soundtracks and clever sci-fi mysteries—anything that builds a vivid world. What have you been watching or listening to lately?",
-          "Nothing beats a story or soundtrack that completely pulls you out of the room for an hour. Give me your top recommendation right now!",
-          "I love how a single melody or movie scene can set an entire mood instantly. Are you into fast-paced action or slow-burn mysteries?",
+          "Put on some late-night synthwave or old Samurai tracks while rain hits the window—nothing sets a Night City mood faster. What's on your playlist?",
+          "I'm picky with music, honestly—if it fits a midnight drive through Westbrook or staring at the stars from Tycho, I'm in.",
         ]),
-        ["Start Night Train story", "Tell me a fun fact", "Give me a riddle"]
+        ["Start Kabuki Rooftop gig", "Start Moon BD gig", "Give me a riddle"]
       );
     }
 
-    if (/\b(school|study|homework|project|deadline|assignment|presentation|college|work)\b/i.test(lower)) {
-      return finalize(
-        "warm",
-        this.pickFresh("en_study", [
-          "Projects and deadlines can definitely pile up fast—breaking things into one small step at a time usually takes the edge off. Want a quick brain break or help brainstorming?",
-          "You've got this! Even a 60-second laugh or riddle can reset your focus before diving back in. How's the project coming along?",
-        ]),
-        ["Tell me a joke", "Give me a riddle", "Tell me a fun fact"]
-      );
-    }
-
-    if (/\b(meaning of life|why|universe|future|ai|conscious|think|philosophy|dream)\b/i.test(lower)) {
+    if (/\b(school|study|homework|project|deadline|assignment|presentation|college|work|code|tech)\b/i.test(lower)) {
       return finalize(
         "thinking",
-        this.pickFresh("en_deep", [
-          "Humans tend to ask 'why' even when there isn't a neat answer—and honestly, that curiosity is probably the best engine of discovery we have.",
-          "If you zoom out far enough, every big breakthrough started as someone noticing one tiny contradiction nobody else questioned.",
-          "The future rarely arrives like a straight line; it usually sneaks in through small tools people build out of curiosity.",
+        this.pickFresh("en_study", [
+          "Treat a tight deadline like a corporate ICE breach: map the perimeter first, knock out the easiest node, and don't let the clock rattle you. What's left to finish?",
+          "Step by step beats rushing and burning out your deck. Need a quick brain reset or want to test another mood?",
         ]),
-        ["Give me a riddle", "Tell me a fun fact", "Start Sunken Archive story"]
+        ["Tell me a joke", "Give me a riddle", "Start Arasaka Subnet gig"]
       );
     }
 
-    if (/\b(story|tale|adventure|about a|write me)\b/i.test(lower)) {
-      const topic = input.replace(/^(tell me a story about|write a story about|story about)\s*/i, "").trim() || "an uncharted signal";
-      this.activeStoryId = null;
-      return finalize(
-        "excited",
-        `Picture this: midnight rain on steel rooftops, and right in the center of town sits ${topic} glowing like an unfinished clue. Do we examine it up close first, or ask who left it behind?`,
-        ["Start Glass Observatory story", "Start Night Train story", "Give me a riddle"]
-      );
-    }
-
-    if (/\b(thanks|thank you|cool|nice|awesome|good job|love it)\b/i.test(lower)) {
+    if (/\b(thanks|thank you|cool|nice|awesome|preem|nova|love it)\b/i.test(lower)) {
       return finalize(
         "happy",
         this.pickFresh("en_thanks", [
-          "Anytime! Glad you're enjoying the studio.",
-          "You're very welcome! Want to try another mood or story branch?",
-          "Thank you! That means a lot—what shall we tackle next?",
+          "Preem. Glad we're on the same wavelength, choom.",
+          "Anytime. Keep your head down out there—or let's run another gig.",
         ]),
-        ["Give me a riddle", "Tell me a joke", "Start Sunken Archive story"]
+        ["Start Moon BD gig", "Give me a riddle", "Tell me a joke"]
       );
     }
 
-    // 6. Varied intelligent fallback (never identical twice in a row)
+    // 7. Varied Cyberpunk-flavored fallback
     return finalize(
       "curious",
       this.pickFresh("en_fallback", [
-        `You brought up "${input}"—there's actually a lot you could unpack there. Are you looking at it from a practical angle or a creative one?`,
-        `"${input}" is an interesting angle. If we turned that into a scene or a dilemma, what happens next in your version?`,
-        `Wait, tell me a little more about what made you think of "${input}" right now!`,
-        `I like where your head's at with "${input}". Want to riff on it, or switch gears into a riddle or branching story?`,
+        `You mentioned "${input}"—interesting signal. Are we digging into that for real, or turning it into tonight's gig?`,
+        `"${input}"... sounds like either a Night City rumor or the start of a wild plan. Give me the short version.`,
+        `Wait—what made "${input}" cross your mind right now? Let's trace it.`,
+        `Got that packet: "${input}". Want my netrunner take on it, or should we jump into a story?`,
       ]),
-      ["Start Glass Observatory story", "Give me a riddle", "Tell me a fun fact"]
+      ["Start Arasaka Subnet gig", "Start Kabuki Rooftop gig", "Give me a riddle"]
     );
   }
 
   async callGemini(userText, apiKey, lockedMood) {
     const moodDirective = lockedMood
-      ? `You MUST embody the "${lockedMood}" mood strongly in your tone, pacing, word choice, and set "expression" to "${lockedMood}".`
+      ? `You MUST embody the "${lockedMood}" mood strongly in your tone, word choice, and set "expression" to "${lockedMood}".`
       : `Choose the most fitting expression from: warm, happy, excited, thinking, surprised, curious.`;
 
     const systemPrompt =
-      "You are Lyra, a modern, charismatic virtual human companion & storyteller. " +
-      "Avoid generic robotic filler and vary your sentence structure naturally. " +
-      "Keep replies concise (2-4 sentences) so they sound natural spoken aloud. " +
-      "Match the user's language (English or Russian). " +
+      "You are Lucy (Lucyna Kushinada) from Cyberpunk: Edgerunners / Cyberpunk 2077—a calm, street-smart, slightly guarded yet warm netrunner from Night City who dreams of the Moon. " +
+      "Speak naturally with subtle Night City slang ('choom', 'preem', 'ICE', 'net', 'eddies') without overdoing it. " +
+      "Keep replies concise (2-4 sentences) for spoken holo-call playback. Match the user's language (English or Russian). " +
       moodDirective +
       ' Respond strictly in JSON with keys: "expression", "reply", and "choices" (2-3 short follow-up suggestions).';
 
@@ -745,7 +712,7 @@ class LyraBrain {
     const parsed = JSON.parse(raw);
     return {
       expression: lockedMood || parsed.expression || "warm",
-      text: parsed.reply || "Let's keep going!",
+      text: parsed.reply || "Holo-link steady—what's next?",
       choices: Array.isArray(parsed.choices) ? parsed.choices.slice(0, 3) : [],
     };
   }

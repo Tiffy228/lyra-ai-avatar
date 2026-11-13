@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lyra — Modern Talking AI Avatar</title>
+  <title>Lucy — Cyberpunk 2077 Netrunner AI Avatar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="styles.css" />
@@ -21,16 +21,20 @@
           <span></span>
         </div>
         <div>
-          <h1 class="brand-title">Lyra</h1>
-          <p class="brand-subtitle">Interactive Virtual Human · Companion &amp; Storyteller</p>
+          <h1 class="brand-title">LUCY <span class="brand-tag">NETRUNNER // NC-77</span></h1>
+          <p class="brand-subtitle">Cyberpunk Holo-Comms AI · Interactive Character</p>
         </div>
       </div>
 
       <div class="topbar-actions">
-        <div class="voice-profile-pill" id="voiceProfilePill" title="Current voice tone adapts automatically to mood">
-          <span class="vp-label">Tone:</span>
-          <strong id="voiceMoodMeta">Warm · 1.00x</strong>
+        <div class="voice-profile-pill" id="voiceProfilePill" title="Current voice tone adapts to mood">
+          <span class="vp-label">Holo-Tone:</span>
+          <strong id="voiceMoodMeta">Warm · 0.96x</strong>
         </div>
+        <button id="holoFxBtn" class="icon-pill" type="button" aria-pressed="true" title="Toggle Cyberpunk holo-call sound FX">
+          <span class="pill-dot active cyan" id="holoFxDot"></span>
+          <span id="holoFxLabel">Holo-FX On</span>
+        </button>
         <button id="voiceToggleBtn" class="icon-pill" type="button" aria-pressed="true" title="Toggle spoken voice">
           <span class="pill-dot active" id="voiceDot"></span>
           <span id="voiceToggleLabel">Voice On</span>
@@ -43,18 +47,25 @@
 
     <!-- Main Studio Layout -->
     <main class="studio-grid">
-      <!-- Left: Modern Gray Avatar Stage -->
+      <!-- Left: Modern Gray Cyberpunk Holo-Stage -->
       <section class="avatar-stage" aria-label="Animated AI Character Stage">
         <div class="stage-backdrop" id="stageBackdrop" data-mood="warm">
           <div class="studio-grid-bg" aria-hidden="true"></div>
+          <div class="holo-scanlines" aria-hidden="true"></div>
           <div class="ambient-glow" id="ambientGlow" aria-hidden="true"></div>
           <canvas id="particlesCanvas" class="particles-canvas" aria-hidden="true"></canvas>
+
+          <!-- Holo Frame Corners -->
+          <span class="hud-corner tl" aria-hidden="true"></span>
+          <span class="hud-corner tr" aria-hidden="true"></span>
+          <span class="hud-corner bl" aria-hidden="true"></span>
+          <span class="hud-corner br" aria-hidden="true"></span>
 
           <!-- Stage Top HUD -->
           <div class="stage-hud-top">
             <div class="status-badge" id="avatarStatusBadge">
               <span class="status-dot" id="statusDot"></span>
-              <span id="statusText">Online · Ready</span>
+              <span id="statusText">HOLO-LINK ACTIVE</span>
             </div>
             <div class="expression-badge" id="expressionBadge">
               Mood: <strong id="expressionLabel">Warm</strong>
@@ -62,193 +73,257 @@
             </div>
           </div>
 
-          <!-- Modern Articulated SVG Character -->
+          <!-- Lucy (Cyberpunk 2077 / Edgerunners) Articulated SVG Character -->
           <div class="character-frame" id="characterFrame">
             <svg
               id="lyraSvg"
               viewBox="0 0 420 460"
               class="lyra-svg"
               role="img"
-              aria-label="Lyra, an animated modern virtual human"
+              aria-label="Lucy, animated Cyberpunk 2077 netrunner avatar"
             >
               <defs>
-                <!-- Skin & Studio Rim Lighting -->
+                <!-- Porcelain Cyber-Noir Skin -->
                 <radialGradient id="skinGrad" cx="48%" cy="38%" r="60%">
-                  <stop offset="0%" stop-color="#FFE6D4" />
-                  <stop offset="65%" stop-color="#F2C2A6" />
-                  <stop offset="100%" stop-color="#D99B7B" />
+                  <stop offset="0%" stop-color="#FFF2EE" />
+                  <stop offset="65%" stop-color="#F5D9D2" />
+                  <stop offset="100%" stop-color="#DBB3AA" />
                 </radialGradient>
                 <linearGradient id="neckGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#D29577" />
-                  <stop offset="45%" stop-color="#E7B395" />
-                  <stop offset="100%" stop-color="#DFAA8B" />
+                  <stop offset="0%" stop-color="#CE9FA0" />
+                  <stop offset="45%" stop-color="#ECCAC3" />
+                  <stop offset="100%" stop-color="#E2BEB7" />
                 </linearGradient>
 
-                <!-- Sleek Graphite-Silver Hair -->
+                <!-- Lucy's Iconic White-Platinum Bob with Pastel Rainbow Inner Strands -->
                 <linearGradient id="hairBackGrad" x1="15%" y1="0%" x2="85%" y2="100%">
-                  <stop offset="0%" stop-color="#353944" />
-                  <stop offset="55%" stop-color="#22252D" />
-                  <stop offset="100%" stop-color="#14161B" />
+                  <stop offset="0%" stop-color="#DDE4EE" />
+                  <stop offset="52%" stop-color="#B8C2D1" />
+                  <stop offset="100%" stop-color="#8A95A8" />
                 </linearGradient>
-                <linearGradient id="hairFrontGrad" x1="10%" y1="0%" x2="90%" y2="100%">
-                  <stop offset="0%" stop-color="#4A505E" />
-                  <stop offset="48%" stop-color="#2A2E38" />
-                  <stop offset="100%" stop-color="#181A20" />
+                <linearGradient id="hairRainbowUnder" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#67E8F9" />
+                  <stop offset="45%" stop-color="#C084FC" />
+                  <stop offset="100%" stop-color="#FB7185" />
                 </linearGradient>
-                <linearGradient id="hairShineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#9CA3B4" stop-opacity="0" />
-                  <stop offset="50%" stop-color="#D1D5E0" stop-opacity="0.34" />
-                  <stop offset="100%" stop-color="#9CA3B4" stop-opacity="0" />
+                <linearGradient id="hairFrontGrad" x1="15%" y1="0%" x2="85%" y2="100%">
+                  <stop offset="0%" stop-color="#F8FAFC" />
+                  <stop offset="55%" stop-color="#DCE3EE" />
+                  <stop offset="100%" stop-color="#B0BBCB" />
                 </linearGradient>
-
-                <!-- Modern Minimalist Studio Outfit -->
-                <linearGradient id="jacketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#383C45" />
-                  <stop offset="55%" stop-color="#25282F" />
-                  <stop offset="100%" stop-color="#181A1F" />
-                </linearGradient>
-                <linearGradient id="knitGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#555B68" />
-                  <stop offset="100%" stop-color="#333741" />
+                <linearGradient id="hairTipRainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#C4D0E0" />
+                  <stop offset="50%" stop-color="#93C5FD" />
+                  <stop offset="80%" stop-color="#F0ABFC" />
+                  <stop offset="100%" stop-color="#FDA4AF" />
                 </linearGradient>
 
-                <!-- Expressive Cool Hazel-Amber Eyes -->
-                <radialGradient id="irisGrad" cx="46%" cy="38%" r="58%">
-                  <stop offset="0%" stop-color="#93B0C8" />
-                  <stop offset="52%" stop-color="#536E88" />
-                  <stop offset="100%" stop-color="#253445" />
+                <!-- Lucy's High-Collar White Tech Jacket & Dark Netrunner Suit -->
+                <linearGradient id="suitDarkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#272A33" />
+                  <stop offset="60%" stop-color="#17191F" />
+                  <stop offset="100%" stop-color="#0F1115" />
+                </linearGradient>
+                <linearGradient id="whiteJacketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#F1F5F9" />
+                  <stop offset="65%" stop-color="#CBD5E1" />
+                  <stop offset="100%" stop-color="#94A3B8" />
+                </linearGradient>
+
+                <!-- Lucy's Luminous Ice-Cyan / Pastel Blue-Violet Netrunner Eyes -->
+                <radialGradient id="irisGrad" cx="46%" cy="40%" r="58%">
+                  <stop offset="0%" stop-color="#A5F3FC" />
+                  <stop offset="48%" stop-color="#60A5FA" />
+                  <stop offset="82%" stop-color="#7E5BEF" />
+                  <stop offset="100%" stop-color="#2E1B4B" />
                 </radialGradient>
 
                 <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#E87D86" stop-opacity="0.48" />
-                  <stop offset="100%" stop-color="#E87D86" stop-opacity="0" />
+                  <stop offset="0%" stop-color="#FB7185" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="#FB7185" stop-opacity="0" />
                 </radialGradient>
 
                 <clipPath id="leftEyeClip">
-                  <path id="leftEyeClipPath" d="M 136 205 Q 160 185 184 205 Q 160 222 136 205 Z" />
+                  <path id="leftEyeClipPath" d="M 136 205 Q 160 186 184 205 Q 160 221 136 205 Z" />
                 </clipPath>
                 <clipPath id="rightEyeClip">
-                  <path id="rightEyeClipPath" d="M 236 205 Q 260 185 284 205 Q 260 222 236 205 Z" />
+                  <path id="rightEyeClipPath" d="M 236 205 Q 260 186 284 205 Q 260 221 236 205 Z" />
                 </clipPath>
               </defs>
 
-              <!-- Subtle Studio Rim Halo behind head -->
-              <circle cx="210" cy="215" r="142" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
+              <!-- Holographic Netrunner Reticle Behind Head -->
+              <g id="cyberHaloGroup" opacity="0.5">
+                <circle cx="210" cy="212" r="146" fill="none" stroke="rgba(103, 232, 249, 0.22)" stroke-width="1.2" stroke-dasharray="10 8" />
+                <circle cx="210" cy="212" r="158" fill="none" stroke="rgba(251, 113, 133, 0.16)" stroke-width="1" stroke-dasharray="4 14" />
+              </g>
 
-              <!-- Torso & Modern Blazer/Turtleneck -->
+              <!-- Torso & Lucy's Netrunner Outfit -->
               <g id="torsoGroup">
-                <!-- Shoulders & Structured Jacket -->
+                <!-- Dark Netrunner Bodysuit Core -->
                 <path
-                  d="M 80 460 C 86 376, 126 342, 210 342 C 294 342, 334 376, 340 460 Z"
-                  fill="url(#jacketGrad)"
+                  d="M 88 460 C 94 374, 134 344, 210 344 C 286 344, 326 374, 332 460 Z"
+                  fill="url(#suitDarkGrad)"
                 />
-                <!-- Subtle Jacket Lapels -->
+                <!-- Bodysuit Chest Seam Lines & Magenta Accent -->
                 <path
-                  d="M 152 344 L 188 456 L 210 420 L 232 456 L 268 344"
+                  d="M 176 346 L 194 458 M 244 346 L 226 458"
+                  stroke="#3E4452"
+                  stroke-width="1.8"
+                />
+                <path
+                  d="M 164 388 L 210 412 L 256 388"
                   fill="none"
-                  stroke="#525866"
+                  stroke="#F43F5E"
+                  stroke-width="2"
+                  stroke-opacity="0.78"
+                />
+                <!-- Netrunner Choker / Collar Tech Band -->
+                <path
+                  d="M 178 336 Q 210 348 242 336 L 245 350 Q 210 362 175 350 Z"
+                  fill="#171920"
+                  stroke="#475569"
+                  stroke-width="1.2"
+                />
+                <circle cx="210" cy="350" r="3.5" fill="#22D3EE" />
+
+                <!-- Lucy's Iconic White High-Collar Tech Jacket (Left & Right Flaps) -->
+                <path
+                  d="M 78 460 C 84 372, 118 336, 166 322 L 182 346 L 160 460 Z"
+                  fill="url(#whiteJacketGrad)"
+                />
+                <path
+                  d="M 342 460 C 336 372, 302 336, 254 322 L 238 346 L 260 460 Z"
+                  fill="url(#whiteJacketGrad)"
+                />
+                <!-- High Jacket Collar Wings with Cyan/Magenta Inner Trim -->
+                <path
+                  d="M 152 332 L 166 296 L 184 328 L 176 352 Z"
+                  fill="#E2E8F0"
+                  stroke="#94A3B8"
+                  stroke-width="1.2"
+                />
+                <path
+                  d="M 268 332 L 254 296 L 236 328 L 244 352 Z"
+                  fill="#E2E8F0"
+                  stroke="#94A3B8"
+                  stroke-width="1.2"
+                />
+                <path
+                  d="M 165 300 L 180 330 M 255 300 L 240 330"
+                  stroke="#F43F5E"
                   stroke-width="2"
                   stroke-linecap="round"
                 />
-                <!-- Ribbed Slate Turtleneck -->
+                <!-- Subtle Jacket Shoulder Cyber-Stripes -->
                 <path
-                  d="M 168 338 Q 210 356 252 338 L 248 424 Q 210 442 172 424 Z"
-                  fill="url(#knitGrad)"
+                  d="M 118 386 L 154 366 M 302 386 L 266 366"
+                  stroke="#22D3EE"
+                  stroke-width="2.2"
+                  stroke-opacity="0.75"
+                  stroke-linecap="round"
                 />
-                <!-- Minimalist Silver Pendant -->
-                <path
-                  d="M 176 346 Q 210 398 244 346"
-                  fill="none"
-                  stroke="#C4C9D4"
-                  stroke-width="1.4"
-                  stroke-opacity="0.7"
-                />
-                <circle cx="210" cy="382" r="5" fill="#E5E7EB" />
-                <circle cx="210" cy="382" r="2.2" fill="#25282F" />
               </g>
 
               <!-- Head Rig -->
               <g id="headRig" transform="translate(0, 0)">
-                <!-- Back Hair Silhouette -->
+                <!-- Iridescent Pastel Rainbow Under-Hair Layer -->
                 <path
-                  d="M 102 182 C 90 232, 94 302, 118 336 C 138 352, 162 342, 168 320 L 252 320 C 258 342, 282 352, 302 336 C 326 302, 330 232, 318 182 C 306 102, 260 72, 210 72 C 160 72, 114 102, 102 182 Z"
+                  d="M 104 188 C 94 238, 98 308, 124 340 C 144 355, 165 344, 170 322 L 250 322 C 255 344, 276 355, 296 340 C 322 308, 326 238, 316 188 Z"
+                  fill="url(#hairRainbowUnder)"
+                  opacity="0.82"
+                />
+
+                <!-- Back Platinum-Silver Bob Hair -->
+                <path
+                  d="M 102 182 C 92 228, 96 296, 120 330 C 140 344, 162 334, 168 314 L 252 314 C 258 334, 280 344, 300 330 C 324 296, 328 228, 318 182 C 306 100, 260 70, 210 70 C 160 70, 114 100, 102 182 Z"
                   fill="url(#hairBackGrad)"
                 />
 
-                <!-- Neck -->
+                <!-- Neck & Subtle Cyberware Seam -->
                 <path
-                  d="M 184 286 L 184 346 Q 210 358 236 346 L 236 286 Z"
+                  d="M 185 286 L 185 346 Q 210 356 235 346 L 235 286 Z"
                   fill="url(#neckGrad)"
                 />
+                <path d="M 192 308 L 198 336 M 228 308 L 222 336" stroke="#64748B" stroke-width="1" opacity="0.55" />
 
-                <!-- Ears & Minimalist Silver Studs -->
+                <!-- Ears & Cyber-Port Stud -->
                 <g id="earsGroup">
-                  <ellipse cx="123" cy="214" rx="11" ry="19" fill="#EEB797" />
-                  <ellipse cx="124" cy="214" rx="5.5" ry="10" fill="#D49777" />
-                  <circle cx="121" cy="229" r="3" fill="#E5E7EB" />
-
-                  <ellipse cx="297" cy="214" rx="11" ry="19" fill="#EEB797" />
-                  <ellipse cx="296" cy="214" rx="5.5" ry="10" fill="#D49777" />
-                  <circle cx="299" cy="229" r="3" fill="#E5E7EB" />
+                  <ellipse cx="123" cy="214" rx="10" ry="18" fill="#F2D0C8" />
+                  <circle cx="122" cy="227" r="2.6" fill="#22D3EE" />
+                  <ellipse cx="297" cy="214" rx="10" ry="18" fill="#F2D0C8" />
+                  <circle cx="298" cy="227" r="2.6" fill="#22D3EE" />
                 </g>
 
-                <!-- Face Contour -->
+                <!-- Sleek Sculpted Face Contour -->
                 <path
-                  d="M 125 196 C 125 128, 162 96, 210 96 C 258 96, 295 128, 295 196 C 295 252, 256 307, 210 311 C 164 307, 125 252, 125 196 Z"
+                  d="M 126 196 C 126 128, 162 96, 210 96 C 258 96, 294 128, 294 196 C 294 252, 254 306, 210 310 C 166 306, 126 252, 126 196 Z"
                   fill="url(#skinGrad)"
                 />
 
-                <!-- Subtle Cheek Blush -->
-                <ellipse id="leftBlush" cx="152" cy="236" rx="22" ry="11" fill="url(#blushGrad)" opacity="0.5" />
-                <ellipse id="rightBlush" cx="268" cy="236" rx="22" ry="11" fill="url(#blushGrad)" opacity="0.5" />
+                <!-- Lucy's Subtle Facial Cyberware Lines & Temple Interface -->
+                <g id="cyberwareFace" opacity="0.62">
+                  <path d="M 131 224 L 146 238 L 152 268" fill="none" stroke="#475569" stroke-width="1.2" stroke-linecap="round" />
+                  <path d="M 289 224 L 274 238 L 268 268" fill="none" stroke="#475569" stroke-width="1.2" stroke-linecap="round" />
+                  <circle cx="282" cy="196" r="2.3" fill="#22D3EE" />
+                </g>
+
+                <!-- Soft Cheek Blush -->
+                <ellipse id="leftBlush" cx="152" cy="236" rx="20" ry="10" fill="url(#blushGrad)" opacity="0.45" />
+                <ellipse id="rightBlush" cx="268" cy="236" rx="20" ry="10" fill="url(#blushGrad)" opacity="0.45" />
 
                 <!-- Nose -->
                 <path
-                  d="M 209 213 Q 205 231 212 235 Q 217 236 219 232"
+                  d="M 209 213 Q 205 231 212 234 Q 217 235 219 231"
                   fill="none"
-                  stroke="#C78A6B"
-                  stroke-width="2.1"
+                  stroke="#C49088"
+                  stroke-width="2"
                   stroke-linecap="round"
                 />
 
-                <!-- Eyes -->
+                <!-- Lucy's Iconic Crimson-Magenta Eye Makeup & Eyes -->
                 <g id="eyesGroup">
+                  <!-- Crimson-Rose Eyeshadow Wings -->
+                  <path d="M 130 202 Q 158 184 186 204 Q 158 224 130 202 Z" fill="#E11D48" opacity="0.28" />
+                  <path d="M 234 204 Q 262 184 290 202 Q 262 224 234 204 Z" fill="#E11D48" opacity="0.28" />
+
                   <!-- Left Eye -->
                   <g id="leftEye">
                     <path
                       id="leftSclera"
-                      d="M 136 205 Q 160 185 184 205 Q 160 222 136 205 Z"
+                      d="M 136 205 Q 160 186 184 205 Q 160 221 136 205 Z"
                       fill="#FAFBFD"
                     />
                     <g clip-path="url(#leftEyeClip)">
                       <g id="leftPupilGroup" transform="translate(0, 0)">
-                        <circle cx="160" cy="204" r="12.2" fill="url(#irisGrad)" />
-                        <circle cx="160" cy="204" r="5.8" fill="#171A21" />
-                        <circle cx="155.5" cy="199" r="3.4" fill="#FFFFFF" opacity="0.95" />
-                        <circle cx="164" cy="208" r="1.5" fill="#FFFFFF" opacity="0.75" />
+                        <circle cx="160" cy="204" r="12" fill="url(#irisGrad)" />
+                        <circle id="leftIrisHud" cx="160" cy="204" r="9.5" fill="none" stroke="#67E8F9" stroke-width="0.9" stroke-dasharray="3 3" opacity="0.65" />
+                        <circle cx="160" cy="204" r="5.3" fill="#131622" />
+                        <circle cx="155.5" cy="199" r="3.2" fill="#FFFFFF" opacity="0.95" />
+                        <circle cx="164" cy="208" r="1.4" fill="#A5F3FC" opacity="0.85" />
                       </g>
                     </g>
+                    <!-- Sharp Winged Eyeliner -->
                     <path
                       id="leftUpperLid"
-                      d="M 134 205 Q 160 183 186 205"
+                      d="M 130 201 Q 160 182 186 205"
                       fill="none"
-                      stroke="#1F232C"
-                      stroke-width="3.6"
+                      stroke="#161822"
+                      stroke-width="3.8"
                       stroke-linecap="round"
                     />
                     <path
                       id="leftLowerLid"
-                      d="M 140 207 Q 160 219 180 207"
+                      d="M 139 208 Q 160 218 181 207"
                       fill="none"
-                      stroke="#C38A6F"
-                      stroke-width="1.5"
+                      stroke="#BE123C"
+                      stroke-width="1.8"
                       stroke-linecap="round"
-                      opacity="0.65"
+                      opacity="0.72"
                     />
                     <path
                       id="leftBlinkLid"
-                      d="M 134 205 Q 160 183 186 205 Q 160 222 134 205 Z"
-                      fill="#EBB495"
+                      d="M 132 204 Q 160 182 186 205 Q 160 222 132 204 Z"
+                      fill="#F0D0C8"
                       opacity="0"
                     />
                   </g>
@@ -257,58 +332,59 @@
                   <g id="rightEye">
                     <path
                       id="rightSclera"
-                      d="M 236 205 Q 260 185 284 205 Q 260 222 236 205 Z"
+                      d="M 236 205 Q 260 186 284 205 Q 260 221 236 205 Z"
                       fill="#FAFBFD"
                     />
                     <g clip-path="url(#rightEyeClip)">
                       <g id="rightPupilGroup" transform="translate(0, 0)">
-                        <circle cx="260" cy="204" r="12.2" fill="url(#irisGrad)" />
-                        <circle cx="260" cy="204" r="5.8" fill="#171A21" />
-                        <circle cx="255.5" cy="199" r="3.4" fill="#FFFFFF" opacity="0.95" />
-                        <circle cx="264" cy="208" r="1.5" fill="#FFFFFF" opacity="0.75" />
+                        <circle cx="260" cy="204" r="12" fill="url(#irisGrad)" />
+                        <circle id="rightIrisHud" cx="260" cy="204" r="9.5" fill="none" stroke="#67E8F9" stroke-width="0.9" stroke-dasharray="3 3" opacity="0.65" />
+                        <circle cx="260" cy="204" r="5.3" fill="#131622" />
+                        <circle cx="255.5" cy="199" r="3.2" fill="#FFFFFF" opacity="0.95" />
+                        <circle cx="264" cy="208" r="1.4" fill="#A5F3FC" opacity="0.85" />
                       </g>
                     </g>
                     <path
                       id="rightUpperLid"
-                      d="M 234 205 Q 260 183 286 205"
+                      d="M 234 205 Q 260 182 290 201"
                       fill="none"
-                      stroke="#1F232C"
-                      stroke-width="3.6"
+                      stroke="#161822"
+                      stroke-width="3.8"
                       stroke-linecap="round"
                     />
                     <path
                       id="rightLowerLid"
-                      d="M 240 207 Q 260 219 280 207"
+                      d="M 239 207 Q 260 218 281 208"
                       fill="none"
-                      stroke="#C38A6F"
-                      stroke-width="1.5"
+                      stroke="#BE123C"
+                      stroke-width="1.8"
                       stroke-linecap="round"
-                      opacity="0.65"
+                      opacity="0.72"
                     />
                     <path
                       id="rightBlinkLid"
-                      d="M 234 205 Q 260 183 286 205 Q 260 222 234 205 Z"
-                      fill="#EBB495"
+                      d="M 234 205 Q 260 182 288 204 Q 260 222 234 205 Z"
+                      fill="#F0D0C8"
                       opacity="0"
                     />
                   </g>
                 </g>
 
-                <!-- Eyebrows -->
+                <!-- Expressive Sleek Eyebrows -->
                 <path
                   id="leftBrow"
                   d="M 136 178 Q 160 169 184 176"
                   fill="none"
-                  stroke="#272B35"
-                  stroke-width="4"
+                  stroke="#525C6E"
+                  stroke-width="3.6"
                   stroke-linecap="round"
                 />
                 <path
                   id="rightBrow"
                   d="M 236 176 Q 260 169 284 178"
                   fill="none"
-                  stroke="#272B35"
-                  stroke-width="4"
+                  stroke="#525C6E"
+                  stroke-width="3.6"
                   stroke-linecap="round"
                 />
 
@@ -316,12 +392,12 @@
                 <g id="mouthGroup" transform="translate(210, 263)">
                   <path
                     id="mouthCavity"
-                    d="M -20 0 Q 0 2 20 0 Q 0 2 -20 0 Z"
-                    fill="#68242E"
+                    d="M -19 0 Q 0 2 19 0 Q 0 2 -19 0 Z"
+                    fill="#681E32"
                   />
                   <path
                     id="mouthTeeth"
-                    d="M -15 -1 Q 0 1 15 -1 L 13 3 Q 0 4 -13 3 Z"
+                    d="M -14 -1 Q 0 1 14 -1 L 12 3 Q 0 4 -12 3 Z"
                     fill="#FAFBFD"
                     opacity="0"
                   />
@@ -329,44 +405,55 @@
                     id="mouthTongue"
                     cx="0"
                     cy="8"
-                    rx="10"
-                    ry="4.5"
-                    fill="#D46975"
+                    rx="9.5"
+                    ry="4.2"
+                    fill="#DB6882"
                     opacity="0"
                   />
                   <path
                     id="mouthLips"
-                    d="M -21 0 Q 0 7 21 0"
+                    d="M -20 0 Q 0 6 20 0"
                     fill="none"
-                    stroke="#B35862"
+                    stroke="#C75C77"
                     stroke-width="3"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
                 </g>
 
-                <!-- Front Hair & Sleek Side Layers -->
+                <!-- Lucy's Asymmetric Bangs & Iridescent Side Locks -->
                 <g id="frontHairGroup">
+                  <!-- Main White-Silver Crown & Choppy Bangs -->
                   <path
-                    d="M 112 184 C 110 118, 152 78, 210 78 C 268 78, 310 118, 308 184 C 296 154, 276 130, 248 122 C 232 146, 208 158, 182 162 C 155 166, 134 150, 126 138 C 122 156, 118 172, 112 184 Z"
+                    d="M 110 186 C 108 116, 152 76, 210 76 C 268 76, 312 116, 310 186 C 296 154, 282 132, 262 126 L 250 166 L 234 130 L 210 174 L 194 134 L 168 170 L 154 134 C 138 148, 124 166, 110 186 Z"
                     fill="url(#hairFrontGrad)"
                   />
-                  <!-- Hair sheen -->
+                  <!-- Long Asymmetric Cheek-Framing Locks with Pastel Tips -->
                   <path
-                    d="M 148 118 Q 210 92 272 118 Q 245 108 210 108 Q 175 108 148 118 Z"
-                    fill="url(#hairShineGrad)"
-                  />
-                  <!-- Soft Framing Strands -->
-                  <path
-                    d="M 116 168 C 108 218, 114 268, 130 296 C 125 252, 125 210, 129 172 Z"
-                    fill="#21242D"
+                    d="M 114 164 C 104 222, 110 286, 134 328 C 126 276, 126 220, 132 174 Z"
+                    fill="url(#hairTipRainbow)"
                   />
                   <path
-                    d="M 304 168 C 312 218, 306 268, 290 296 C 295 252, 295 210, 291 172 Z"
-                    fill="#21242D"
+                    d="M 306 164 C 316 222, 310 286, 286 328 C 294 276, 294 220, 288 174 Z"
+                    fill="url(#hairTipRainbow)"
                   />
-                  <!-- Minimalist Silver Hair Clip -->
-                  <rect x="256" y="132" width="20" height="4" rx="2" transform="rotate(-18 266 134)" fill="#D5D9E2" />
+                  <!-- Subtle Inner Neon Hair Streak -->
+                  <path
+                    d="M 134 182 C 128 228, 132 274, 146 306"
+                    fill="none"
+                    stroke="#67E8F9"
+                    stroke-width="2.5"
+                    stroke-opacity="0.55"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M 286 182 C 292 228, 288 274, 274 306"
+                    fill="none"
+                    stroke="#FB7185"
+                    stroke-width="2.5"
+                    stroke-opacity="0.55"
+                    stroke-linecap="round"
+                  />
                 </g>
               </g>
             </svg>
@@ -381,13 +468,13 @@
           <!-- Live Subtitle Box -->
           <div class="subtitle-box" id="subtitleBox" aria-live="polite">
             <p id="subtitleText">
-              "Hey! I'm Lyra. Pick a mood below—watch how my tone and voice change—or start an interactive story!"
+              "Holo-link open. I'm Lucy. Switch my mood to Thinking for a deep netrun, or ask me anything."
             </p>
           </div>
 
           <!-- Interactive Mood / Expression Bar -->
           <div class="expression-strip" aria-label="Select character mood and voice style">
-            <button type="button" class="expr-btn auto-btn active" data-expr="auto" title="Let Lyra shift mood naturally">Auto</button>
+            <button type="button" class="expr-btn auto-btn active" data-expr="auto" title="Let Lucy shift mood naturally">Auto</button>
             <button type="button" class="expr-btn" data-expr="warm">Warm</button>
             <button type="button" class="expr-btn" data-expr="happy">Happy</button>
             <button type="button" class="expr-btn" data-expr="excited">Excited</button>
@@ -398,14 +485,14 @@
         </div>
       </section>
 
-      <!-- Right: Dialogue & Interactive Experience -->
+      <!-- Right: Dialogue & Netrunner Terminal Panel -->
       <section class="dialogue-panel" aria-label="Interactive Story and Chat">
         <div class="panel-header">
           <div>
-            <h2>Studio Chat</h2>
-            <p class="panel-desc">Branching stories, games, riddles &amp; mood-aware dialogue</p>
+            <h2>HOLO-COMMS LOG</h2>
+            <p class="panel-desc">Night City branching gigs, Moon lore, riddles &amp; mood-linked voice</p>
           </div>
-          <button id="resetStoryBtn" class="ghost-btn" type="button">Reset Chat</button>
+          <button id="resetStoryBtn" class="ghost-btn" type="button">Reset Link</button>
         </div>
 
         <!-- Chat Transcript -->
@@ -433,12 +520,12 @@
           <input
             id="userInput"
             type="text"
-            placeholder="Talk to Lyra, ask a riddle, or request any story..."
+            placeholder="Message Lucy, start a Night City gig, or ask anything..."
             autocomplete="off"
-            aria-label="Message Lyra"
+            aria-label="Message Lucy"
           />
 
-          <button id="sendBtn" class="send-btn" type="submit">Send</button>
+          <button id="sendBtn" class="send-btn" type="submit">Transmit</button>
         </form>
       </section>
     </main>
@@ -448,7 +535,7 @@
   <dialog id="settingsDialog" class="settings-dialog">
     <form method="dialog" class="settings-card">
       <div class="settings-head">
-        <h3>Voice &amp; AI Settings</h3>
+        <h3>Holo-Voice &amp; AI Settings</h3>
         <button id="closeSettingsBtn" type="button" class="close-btn" aria-label="Close settings">✕</button>
       </div>
 
@@ -459,12 +546,12 @@
 
       <div class="field-row">
         <div class="field-group">
-          <label for="rateRange">Base Speed: <span id="rateVal">1.0</span>x</label>
-          <input id="rateRange" type="range" min="0.75" max="1.35" step="0.05" value="1.0" />
+          <label for="rateRange">Base Speed: <span id="rateVal">0.96</span>x</label>
+          <input id="rateRange" type="range" min="0.75" max="1.35" step="0.02" value="0.96" />
         </div>
         <div class="field-group">
-          <label for="pitchRange">Base Pitch: <span id="pitchVal">1.14</span></label>
-          <input id="pitchRange" type="range" min="0.85" max="1.4" step="0.02" value="1.14" />
+          <label for="pitchRange">Base Pitch: <span id="pitchVal">0.96</span></label>
+          <input id="pitchRange" type="range" min="0.8" max="1.3" step="0.02" value="0.96" />
         </div>
       </div>
 
@@ -473,7 +560,7 @@
       <div class="field-group">
         <label for="geminiKeyInput">
           Optional Free Gemini API Key
-          <span class="hint">(Leave blank for built-in multi-mood Story &amp; Chat Engine)</span>
+          <span class="hint">(Leave blank for built-in Cyberpunk 2077 Lucy Story &amp; Chat Engine)</span>
         </label>
         <input
           id="geminiKeyInput"

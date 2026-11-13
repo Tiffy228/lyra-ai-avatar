@@ -1,9 +1,159 @@
 /**
- * Main Application Controller — Connects LyraCharacter, LyraBrain, mood-adaptive Web Speech TTS/STT, and UI.
+ * Main Application Controller — Connects LucyCharacter, LucyBrain, Cyberpunk Holo-Comms Audio FX,
+ * mood-adaptive Web Speech TTS/STT, and Studio UI.
  */
+class HoloAudioFX {
+  constructor() {
+    this.ctx = null;
+    this.carrierNode = null;
+    this.carrierGain = null;
+    this.enabled = true;
+  }
+
+  ensureContext() {
+    if (!this.enabled) return null;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!this.ctx) {
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {});
+    }
+    return this.ctx;
+  }
+
+  playTone(freqStart, freqEnd, durationSec, type = "sine", peakGain = 0.045, delaySec = 0) {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    const now = ctx.currentTime + delaySec;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freqStart, now);
+    if (freqEnd !== freqStart) {
+      osc.frequency.exponentialRampToValueAtTime(Math.max(40, freqEnd), now + durationSec);
+    }
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(peakGain, now + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + durationSec + 0.02);
+  }
+
+  playStaticBurst(durationSec = 0.09, peakGain = 0.018) {
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    const sampleCount = Math.floor(ctx.sampleRate * durationSec);
+    const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < sampleCount; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / sampleCount);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1850;
+    filter.Q.value = 1.6;
+
+    const gain = ctx.createGain();
+    gain.gain.value = peakGain;
+
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    src.start();
+  }
+
+  playCallStart() {
+    if (!this.enabled) return;
+    this.playStaticBurst(0.08, 0.016);
+    this.playTone(740, 1180, 0.08, "triangle", 0.038, 0);
+    this.playTone(1180, 1480, 0.09, "sine", 0.032, 0.075);
+  }
+
+  playCallEnd() {
+    if (!this.enabled) return;
+    this.playTone(860, 520, 0.09, "sine", 0.026, 0);
+    this.playStaticBurst(0.05, 0.01);
+  }
+
+  playMoodSwitch(mood) {
+    if (!this.enabled) return;
+    if (mood === "thinking") {
+      this.playTone(540, 320, 0.14, "sawtooth", 0.022, 0);
+      this.playTone(680, 920, 0.11, "sine", 0.025, 0.09);
+    } else if (mood === "excited" || mood === "surprised") {
+      this.playTone(660, 1320, 0.1, "triangle", 0.032, 0);
+    } else {
+      this.playTone(620, 840, 0.08, "sine", 0.026, 0);
+    }
+  }
+
+  startCarrierHum() {
+    if (!this.enabled) return;
+    const ctx = this.ensureContext();
+    if (!ctx) return;
+    this.stopCarrierHum();
+
+    const bufferSize = ctx.sampleRate * 2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i += 1) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1650;
+    filter.Q.value = 1.8;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.006, ctx.currentTime + 0.08);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start();
+
+    this.carrierNode = noise;
+    this.carrierGain = gain;
+  }
+
+  stopCarrierHum() {
+    if (this.carrierGain && this.ctx) {
+      try {
+        this.carrierGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.06);
+      } catch (_) {}
+    }
+    if (this.carrierNode) {
+      const node = this.carrierNode;
+      setTimeout(() => {
+        try {
+          node.stop();
+          node.disconnect();
+        } catch (_) {}
+      }, 70);
+      this.carrierNode = null;
+      this.carrierGain = null;
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const character = new window.LyraCharacter();
   const brain = new window.LyraBrain();
+  const holoFx = new HoloAudioFX();
 
   const stageBackdrop = document.getElementById("stageBackdrop");
   const statusDot = document.getElementById("statusDot");
@@ -18,6 +168,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInput = document.getElementById("userInput");
   const micBtn = document.getElementById("micBtn");
   const resetStoryBtn = document.getElementById("resetStoryBtn");
+
+  const holoFxBtn = document.getElementById("holoFxBtn");
+  const holoFxDot = document.getElementById("holoFxDot");
+  const holoFxLabel = document.getElementById("holoFxLabel");
 
   const voiceToggleBtn = document.getElementById("voiceToggleBtn");
   const voiceDot = document.getElementById("voiceDot");
@@ -36,9 +190,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const exprButtons = Array.from(document.querySelectorAll(".expr-btn"));
 
+  // Apply Lucy v3 cool netrunner alto defaults once if upgrading from older Lyra defaults
+  if (!localStorage.getItem("lucy_v3_defaults")) {
+    localStorage.setItem("lyra_rate", "0.96");
+    localStorage.setItem("lyra_pitch", "0.96");
+    localStorage.setItem("lucy_v3_defaults", "1");
+  }
+
   let voiceEnabled = true;
-  let speechRate = Number(localStorage.getItem("lyra_rate")) || 1.0;
-  let speechPitch = Number(localStorage.getItem("lyra_pitch")) || 1.14;
+  let speechRate = Number(localStorage.getItem("lyra_rate")) || 0.96;
+  let speechPitch = Number(localStorage.getItem("lyra_pitch")) || 0.96;
   let selectedVoiceURI = localStorage.getItem("lyra_voice_uri") || "";
   let availableVoices = [];
 
@@ -47,19 +208,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let fallbackTimer = null;
   let activeUtterance = null;
 
-  // Mood-to-voice modulation profiles
+  // Lucy Cyberpunk 2077 mood-to-voice modulation profiles (cool composed alto base)
   const MOOD_VOICE_PROFILES = {
-    warm: { label: "Warm", rateMul: 1.0, pitchOffset: 0.0, cadenceMs: 95, amp: 0.85 },
-    happy: { label: "Happy", rateMul: 1.06, pitchOffset: 0.06, cadenceMs: 85, amp: 0.92 },
-    excited: { label: "Excited", rateMul: 1.15, pitchOffset: 0.13, cadenceMs: 72, amp: 1.0 },
-    thinking: { label: "Thinking", rateMul: 0.83, pitchOffset: -0.1, cadenceMs: 125, amp: 0.65 },
-    surprised: { label: "Surprised", rateMul: 1.12, pitchOffset: 0.14, cadenceMs: 78, amp: 0.95 },
-    curious: { label: "Curious", rateMul: 0.96, pitchOffset: 0.05, cadenceMs: 95, amp: 0.82 },
+    warm: { label: "Warm", rateMul: 0.96, pitchOffset: 0.0, cadenceMs: 98, amp: 0.8 },
+    happy: { label: "Happy", rateMul: 1.03, pitchOffset: 0.05, cadenceMs: 88, amp: 0.88 },
+    excited: { label: "Excited", rateMul: 1.12, pitchOffset: 0.11, cadenceMs: 74, amp: 0.98 },
+    thinking: { label: "Thinking", rateMul: 0.84, pitchOffset: -0.07, cadenceMs: 124, amp: 0.62 },
+    surprised: { label: "Surprised", rateMul: 1.1, pitchOffset: 0.12, cadenceMs: 78, amp: 0.94 },
+    curious: { label: "Curious", rateMul: 0.95, pitchOffset: 0.04, cadenceMs: 96, amp: 0.82 },
   };
 
   rateRange.value = String(speechRate);
   pitchRange.value = String(speechPitch);
-  rateVal.textContent = speechRate.toFixed(2).replace(/\.00$/, ".0");
+  rateVal.textContent = speechRate.toFixed(2);
   pitchVal.textContent = speechPitch.toFixed(2);
   geminiKeyInput.value = localStorage.getItem("lyra_gemini_key") || "";
 
@@ -69,8 +230,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getVoiceProfile(mood) {
     const base = MOOD_VOICE_PROFILES[mood] || MOOD_VOICE_PROFILES.warm;
-    const rate = clamp(speechRate * base.rateMul, 0.65, 1.5);
-    const pitch = clamp(speechPitch + base.pitchOffset, 0.75, 1.55);
+    const rate = clamp(speechRate * base.rateMul, 0.68, 1.45);
+    const pitch = clamp(speechPitch + base.pitchOffset, 0.78, 1.4);
     return { ...base, rate, pitch };
   }
 
@@ -111,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const meta = document.createElement("div");
     meta.className = "msg-meta";
     const name = document.createElement("strong");
-    name.textContent = sender === "lyra" ? "Lyra" : "You";
+    name.textContent = sender === "lyra" ? "Lucy" : "You";
     const time = document.createElement("span");
     time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     meta.append(name, time);
@@ -143,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function stopSpeakingAnimation() {
+  function stopSpeakingAnimation(playHangup = false) {
     if (lipSyncInterval) {
       clearInterval(lipSyncInterval);
       lipSyncInterval = null;
@@ -152,14 +313,16 @@ document.addEventListener("DOMContentLoaded", () => {
       clearTimeout(fallbackTimer);
       fallbackTimer = null;
     }
+    holoFx.stopCarrierHum();
+    if (playHangup) holoFx.playCallEnd();
     character.setSpeaking(false);
-    setStatus("ready", "Online · Ready");
+    setStatus("ready", "HOLO-LINK ACTIVE");
   }
 
   function startLipSyncCadence(profile) {
     if (lipSyncInterval) clearInterval(lipSyncInterval);
     character.setSpeaking(true);
-    setStatus("speaking", `Speaking (${profile.label})...`);
+    setStatus("speaking", `HOLO-TX (${profile.label.toUpperCase()})`);
 
     let step = 0;
     lipSyncInterval = setInterval(() => {
@@ -171,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function speakText(text, mood = "warm") {
-    stopSpeakingAnimation();
+    stopSpeakingAnimation(false);
     subtitleText.textContent = `"${text}"`;
     const profile = getVoiceProfile(mood);
     updateVoiceMoodIndicator(mood);
@@ -192,6 +355,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       utterance.onstart = () => {
         if (utterance !== activeUtterance) return;
+        holoFx.playCallStart();
+        holoFx.startCarrierHum();
         startLipSyncCadence(profile);
       };
 
@@ -202,25 +367,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       utterance.onend = () => {
         if (utterance !== activeUtterance) return;
-        stopSpeakingAnimation();
+        stopSpeakingAnimation(true);
       };
 
       utterance.onerror = () => {
         if (utterance !== activeUtterance) return;
-        stopSpeakingAnimation();
+        stopSpeakingAnimation(false);
       };
 
       window.speechSynthesis.speak(utterance);
       const estimatedMs = Math.min(16000, Math.max(1800, (text.length * 58) / profile.rate));
       fallbackTimer = setTimeout(() => {
         if (utterance === activeUtterance && !window.speechSynthesis.speaking) {
-          stopSpeakingAnimation();
+          stopSpeakingAnimation(false);
         }
       }, estimatedMs + 1200);
     } else {
       startLipSyncCadence(profile);
       const durationMs = Math.min(9500, Math.max(1600, (text.length * 46) / profile.rate));
-      fallbackTimer = setTimeout(stopSpeakingAnimation, durationMs);
+      fallbackTimer = setTimeout(() => stopSpeakingAnimation(false), durationMs);
     }
   }
 
@@ -234,7 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const activeMoodBefore = brain.lockedMood || "thinking";
     character.setExpression(activeMoodBefore);
-    setStatus("ready", brain.lockedMood === "thinking" ? "Analyzing deeply..." : "Thinking...");
+    setStatus("ready", brain.lockedMood === "thinking" ? "NETRUNNING..." : "DECRYPTING...");
 
     const reply = await brain.respond(trimmed);
     const finalMood = brain.lockedMood || reply.expression || "warm";
@@ -309,19 +474,33 @@ document.addEventListener("DOMContentLoaded", () => {
     window.speechSynthesis.onvoiceschanged = populateVoices;
   }
 
-  // Mood / Expression Selector (updates expression, brain style, AND speaks in that mood's voice!)
+  // Mood Selector
   exprButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const moodChoice = btn.dataset.expr;
       selectedMoodButton = moodChoice;
       brain.setMood(moodChoice);
       updateMoodButtonsUI();
+      holoFx.playMoodSwitch(moodChoice);
 
       const reaction = brain.getMoodReaction(moodChoice);
       character.setExpression(reaction.expression);
       appendMessage("lyra", reaction.text, reaction.expression);
       speakText(reaction.text, reaction.expression);
     });
+  });
+
+  // Cyberpunk Holo-FX toggle
+  holoFxBtn.addEventListener("click", () => {
+    holoFx.enabled = !holoFx.enabled;
+    holoFxBtn.setAttribute("aria-pressed", String(holoFx.enabled));
+    holoFxDot.classList.toggle("active", holoFx.enabled);
+    holoFxLabel.textContent = holoFx.enabled ? "Holo-FX On" : "Holo-FX Off";
+    if (!holoFx.enabled) {
+      holoFx.stopCarrierHum();
+    } else {
+      holoFx.playMoodSwitch("curious");
+    }
   });
 
   // Voice mute/unmute toggle
@@ -332,14 +511,14 @@ document.addEventListener("DOMContentLoaded", () => {
     voiceToggleLabel.textContent = voiceEnabled ? "Voice On" : "Voice Muted";
     if (!voiceEnabled && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      stopSpeakingAnimation();
+      stopSpeakingAnimation(false);
     }
   });
 
-  // Reset chat
+  // Reset link
   resetStoryBtn.addEventListener("click", () => {
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-    stopSpeakingAnimation();
+    stopSpeakingAnimation(false);
     chatFeed.innerHTML = "";
     brain.activeStoryId = null;
     brain.activeNodeId = null;
@@ -355,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
     speakText(welcome.text, welcome.expression);
   });
 
-  // Chat form submit
+  // Chat submit
   chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
     handleUserMessage(userInput.value);
@@ -376,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isListening = true;
       micBtn.classList.add("listening");
       if (!brain.lockedMood) character.setExpression("curious");
-      setStatus("listening", "Listening to your voice...");
+      setStatus("listening", "LISTENING ON HOLO-MIC...");
     };
 
     recognition.onresult = (event) => {
@@ -393,14 +572,14 @@ document.addEventListener("DOMContentLoaded", () => {
     recognition.onerror = () => {
       isListening = false;
       micBtn.classList.remove("listening");
-      setStatus("ready", "Online · Ready");
+      setStatus("ready", "HOLO-LINK ACTIVE");
     };
 
     recognition.onend = () => {
       isListening = false;
       micBtn.classList.remove("listening");
       if (!character.isSpeaking) {
-        setStatus("ready", "Online · Ready");
+        setStatus("ready", "HOLO-LINK ACTIVE");
       }
     };
   }
@@ -418,7 +597,7 @@ document.addEventListener("DOMContentLoaded", () => {
       recognition.stop();
     } else {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      stopSpeakingAnimation();
+      stopSpeakingAnimation(false);
       recognition.start();
     }
   });
