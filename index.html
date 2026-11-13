@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lyra — Interactive AI Storyteller Avatar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Studio Header -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <div>
+          <h1 class="brand-title">Lyra</h1>
+          <p class="brand-subtitle">Interactive AI Storyteller &amp; Companion</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="voiceToggleBtn" class="icon-pill" type="button" aria-pressed="true" title="Toggle spoken voice">
+          <span class="pill-dot active" id="voiceDot"></span>
+          <span id="voiceToggleLabel">Voice On</span>
+        </button>
+        <button id="settingsBtn" class="icon-pill" type="button" title="Voice &amp; AI Settings">
+          ⚙ Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Split Stage -->
+    <main class="studio-grid">
+      <!-- Left: Animated Character Stage -->
+      <section class="avatar-stage" aria-label="Animated AI Character Stage">
+        <div class="stage-backdrop">
+          <div class="ambient-glow"></div>
+          <div class="constellation-ring" aria-hidden="true"></div>
+          <canvas id="particlesCanvas" class="particles-canvas" aria-hidden="true"></canvas>
+
+          <!-- Status & Expression Badge -->
+          <div class="stage-hud-top">
+            <div class="status-badge" id="avatarStatusBadge">
+              <span class="status-dot" id="statusDot"></span>
+              <span id="statusText">Ready to tell a story</span>
+            </div>
+            <div class="expression-badge" id="expressionBadge">
+              Mood: <strong id="expressionLabel">Warm</strong>
+            </div>
+          </div>
+
+          <!-- Articulated SVG Character -->
+          <div class="character-frame" id="characterFrame">
+            <svg
+              id="lyraSvg"
+              viewBox="0 0 420 460"
+              class="lyra-svg"
+              role="img"
+              aria-label="Lyra, an animated virtual storyteller"
+            >
+              <defs>
+                <radialGradient id="skinGrad" cx="50%" cy="42%" r="58%">
+                  <stop offset="0%" stop-color="#FFE0C8" />
+                  <stop offset="70%" stop-color="#F5C3A3" />
+                  <stop offset="100%" stop-color="#E2A483" />
+                </radialGradient>
+                <linearGradient id="hairBackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2D234A" />
+                  <stop offset="55%" stop-color="#1E1835" />
+                  <stop offset="100%" stop-color="#130E24" />
+                </linearGradient>
+                <linearGradient id="hairFrontGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+                  <stop offset="0%" stop-color="#45366E" />
+                  <stop offset="60%" stop-color="#2A2047" />
+                  <stop offset="100%" stop-color="#1B1431" />
+                </linearGradient>
+                <linearGradient id="cloakGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#28385E" />
+                  <stop offset="60%" stop-color="#1B2644" />
+                  <stop offset="100%" stop-color="#12192E" />
+                </linearGradient>
+                <linearGradient id="scarfGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#D98B38" />
+                  <stop offset="50%" stop-color="#E8A849" />
+                  <stop offset="100%" stop-color="#C97434" />
+                </linearGradient>
+                <radialGradient id="irisGrad" cx="45%" cy="40%" r="55%">
+                  <stop offset="0%" stop-color="#F2B857" />
+                  <stop offset="55%" stop-color="#B86B28" />
+                  <stop offset="100%" stop-color="#572E14" />
+                </radialGradient>
+                <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#F07C84" stop-opacity="0.55" />
+                  <stop offset="100%" stop-color="#F07C84" stop-opacity="0" />
+                </radialGradient>
+                <clipPath id="leftEyeClip">
+                  <path id="leftEyeClipPath" d="M 136 205 Q 160 185 184 205 Q 160 223 136 205 Z" />
+                </clipPath>
+                <clipPath id="rightEyeClip">
+                  <path id="rightEyeClipPath" d="M 236 205 Q 260 185 284 205 Q 260 223 236 205 Z" />
+                </clipPath>
+              </defs>
+
+              <!-- Floating Lantern Prop (subtle ambient detail) -->
+              <g id="lanternGroup" transform="translate(345, 290)">
+                <line x1="0" y1="-85" x2="0" y2="-16" stroke="#8879A8" stroke-width="1.5" stroke-dasharray="3 3" />
+                <circle cx="0" cy="8" r="28" fill="#E8A849" opacity="0.14" id="lanternAura" />
+                <rect x="-11" y="-12" width="22" height="28" rx="6" fill="#2A223D" stroke="#E8A849" stroke-width="2" />
+                <rect x="-7" y="-7" width="14" height="18" rx="3" fill="#FFD37A" opacity="0.88" id="lanternCore" />
+                <path d="M -8 -12 L 0 -20 L 8 -12 Z" fill="#E8A849" />
+              </g>
+
+              <!-- Torso & Cloak -->
+              <g id="torsoGroup">
+                <path
+                  d="M 88 460 C 92 372, 134 340, 210 340 C 286 340, 328 372, 332 460 Z"
+                  fill="url(#cloakGrad)"
+                />
+                <!-- Cloak lapel & gold trim -->
+                <path
+                  d="M 146 346 L 185 450 L 210 426 L 235 450 L 274 346"
+                  fill="none"
+                  stroke="#E8A849"
+                  stroke-width="2.5"
+                  stroke-opacity="0.7"
+                  stroke-linecap="round"
+                />
+                <!-- Warm Amber Scarf -->
+                <path
+                  d="M 142 338 Q 210 374 278 338 Q 288 358 265 376 Q 210 398 155 376 Q 132 358 142 338 Z"
+                  fill="url(#scarfGrad)"
+                />
+                <path
+                  d="M 225 368 L 248 428 L 272 418 L 252 362 Z"
+                  fill="#D48436"
+                />
+                <!-- Starlight Brooch -->
+                <circle cx="210" cy="376" r="8" fill="#1B2644" stroke="#F4C76E" stroke-width="2" />
+                <path d="M 210 370 L 212 374 L 216 376 L 212 378 L 210 382 L 208 378 L 204 376 L 208 374 Z" fill="#FFE39E" />
+              </g>
+
+              <!-- Head & Hair Rig (pivots smoothly for tilt/nod) -->
+              <g id="headRig" transform="translate(0, 0)">
+                <!-- Back Hair -->
+                <path
+                  d="M 102 185 C 88 235, 92 315, 114 352 C 135 375, 165 362, 168 332 L 252 332 C 255 362, 285 375, 306 352 C 328 315, 332 235, 318 185 C 306 105, 260 72, 210 72 C 160 72, 114 105, 102 185 Z"
+                  fill="url(#hairBackGrad)"
+                />
+
+                <!-- Neck -->
+                <path
+                  d="M 184 286 L 184 345 Q 210 358 236 345 L 236 286 Z"
+                  fill="#E4AA88"
+                />
+                <!-- Neck Shadow -->
+                <path d="M 184 286 Q 210 315 236 286 L 236 306 Q 210 326 184 306 Z" fill="#C98867" opacity="0.55" />
+
+                <!-- Ears & Star Earrings -->
+                <g id="earsGroup">
+                  <ellipse cx="122" cy="214" rx="12" ry="20" fill="#F0B998" />
+                  <ellipse cx="123" cy="214" rx="6" ry="11" fill="#DA9B79" />
+                  <circle cx="121" cy="236" r="4" fill="#F4C76E" />
+
+                  <ellipse cx="298" cy="214" rx="12" ry="20" fill="#F0B998" />
+                  <ellipse cx="297" cy="214" rx="6" ry="11" fill="#DA9B79" />
+                  <circle cx="299" cy="236" r="4" fill="#F4C76E" />
+                </g>
+
+                <!-- Face Contour -->
+                <path
+                  d="M 124 196 C 124 126, 162 96, 210 96 C 258 96, 296 126, 296 196 C 296 254, 258 308, 210 312 C 162 308, 124 254, 124 196 Z"
+                  fill="url(#skinGrad)"
+                />
+
+                <!-- Cheek Blush -->
+                <ellipse id="leftBlush" cx="152" cy="238" rx="22" ry="12" fill="url(#blushGrad)" opacity="0.55" />
+                <ellipse id="rightBlush" cx="268" cy="238" rx="22" ry="12" fill="url(#blushGrad)" opacity="0.55" />
+
+                <!-- Cute Nose -->
+                <path
+                  d="M 208 214 Q 204 232 212 236 Q 218 237 220 233"
+                  fill="none"
+                  stroke="#CC8B6B"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                />
+
+                <!-- Eyes -->
+                <g id="eyesGroup">
+                  <!-- Left Eye -->
+                  <g id="leftEye">
+                    <path
+                      id="leftSclera"
+                      d="M 136 205 Q 160 185 184 205 Q 160 223 136 205 Z"
+                      fill="#FFFDF9"
+                    />
+                    <g clip-path="url(#leftEyeClip)">
+                      <g id="leftPupilGroup" transform="translate(0, 0)">
+                        <circle cx="160" cy="204" r="12.5" fill="url(#irisGrad)" />
+                        <circle cx="160" cy="204" r="6.2" fill="#1C1412" />
+                        <circle cx="155.5" cy="199" r="3.4" fill="#FFFFFF" opacity="0.95" />
+                        <circle cx="164" cy="208" r="1.6" fill="#FFFFFF" opacity="0.75" />
+                      </g>
+                    </g>
+                    <!-- Upper Eyelash Line -->
+                    <path
+                      id="leftUpperLid"
+                      d="M 134 205 Q 160 183 186 205"
+                      fill="none"
+                      stroke="#251A38"
+                      stroke-width="3.6"
+                      stroke-linecap="round"
+                    />
+                    <!-- Lower Lid -->
+                    <path
+                      id="leftLowerLid"
+                      d="M 140 207 Q 160 220 180 207"
+                      fill="none"
+                      stroke="#C58B70"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      opacity="0.7"
+                    />
+                    <!-- Blink Overlay Lid -->
+                    <path
+                      id="leftBlinkLid"
+                      d="M 134 205 Q 160 183 186 205 Q 160 223 134 205 Z"
+                      fill="#EBB292"
+                      opacity="0"
+                    />
+                  </g>
+
+                  <!-- Right Eye -->
+                  <g id="rightEye">
+                    <path
+                      id="rightSclera"
+                      d="M 236 205 Q 260 185 284 205 Q 260 223 236 205 Z"
+                      fill="#FFFDF9"
+                    />
+                    <g clip-path="url(#rightEyeClip)">
+                      <g id="rightPupilGroup" transform="translate(0, 0)">
+                        <circle cx="260" cy="204" r="12.5" fill="url(#irisGrad)" />
+                        <circle cx="260" cy="204" r="6.2" fill="#1C1412" />
+                        <circle cx="255.5" cy="199" r="3.4" fill="#FFFFFF" opacity="0.95" />
+                        <circle cx="264" cy="208" r="1.6" fill="#FFFFFF" opacity="0.75" />
+                      </g>
+                    </g>
+                    <path
+                      id="rightUpperLid"
+                      d="M 234 205 Q 260 183 286 205"
+                      fill="none"
+                      stroke="#251A38"
+                      stroke-width="3.6"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      id="rightLowerLid"
+                      d="M 240 207 Q 260 220 280 207"
+                      fill="none"
+                      stroke="#C58B70"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      opacity="0.7"
+                    />
+                    <path
+                      id="rightBlinkLid"
+                      d="M 234 205 Q 260 183 286 205 Q 260 223 234 205 Z"
+                      fill="#EBB292"
+                      opacity="0"
+                    />
+                  </g>
+                </g>
+
+                <!-- Eyebrows -->
+                <path
+                  id="leftBrow"
+                  d="M 136 178 Q 160 169 184 176"
+                  fill="none"
+                  stroke="#2B1F42"
+                  stroke-width="4.2"
+                  stroke-linecap="round"
+                />
+                <path
+                  id="rightBrow"
+                  d="M 236 176 Q 260 169 284 178"
+                  fill="none"
+                  stroke="#2B1F42"
+                  stroke-width="4.2"
+                  stroke-linecap="round"
+                />
+
+                <!-- Articulated Mouth (Viseme-driven) -->
+                <g id="mouthGroup" transform="translate(210, 264)">
+                  <!-- Inner Mouth Cavity -->
+                  <path
+                    id="mouthCavity"
+                    d="M -22 0 Q 0 2 22 0 Q 0 2 -22 0 Z"
+                    fill="#69232E"
+                  />
+                  <!-- Upper Teeth -->
+                  <path
+                    id="mouthTeeth"
+                    d="M -16 -1 Q 0 1 16 -1 L 14 3 Q 0 4 -14 3 Z"
+                    fill="#FFFDF9"
+                    opacity="0"
+                  />
+                  <!-- Tongue -->
+                  <ellipse
+                    id="mouthTongue"
+                    cx="0"
+                    cy="8"
+                    rx="11"
+                    ry="5"
+                    fill="#D96B78"
+                    opacity="0"
+                  />
+                  <!-- Lip Outline / Smile Curve -->
+                  <path
+                    id="mouthLips"
+                    d="M -24 0 Q 0 7 24 0"
+                    fill="none"
+                    stroke="#B3545E"
+                    stroke-width="3.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </g>
+
+                <!-- Front Hair / Bangs & Hairpin -->
+                <g id="frontHairGroup">
+                  <path
+                    d="M 112 184 C 110 120, 152 80, 210 80 C 268 80, 310 120, 308 184 C 296 156, 278 134, 250 124 C 232 144, 210 156, 184 160 C 156 164, 134 152, 126 140 C 122 158, 118 172, 112 184 Z"
+                    fill="url(#hairFrontGrad)"
+                  />
+                  <!-- Soft Side Strands -->
+                  <path
+                    d="M 115 168 C 106 218, 112 268, 128 296 C 124 252, 124 210, 128 172 Z"
+                    fill="#261D42"
+                  />
+                  <path
+                    d="M 305 168 C 314 218, 308 268, 292 296 C 296 252, 296 210, 292 172 Z"
+                    fill="#261D42"
+                  />
+                  <!-- Crescent Gold Hairpin -->
+                  <path
+                    d="M 264 128 A 10 10 0 1 1 254 142 A 7 7 0 1 0 264 128 Z"
+                    fill="#F4C76E"
+                  />
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Live Subtitle Bar -->
+          <div class="subtitle-box" id="subtitleBox" aria-live="polite">
+            <p id="subtitleText">
+              "Welcome to my observatory! Pick a story below, or ask me anything by text or voice."
+            </p>
+          </div>
+
+          <!-- Interactive Expression Tester Strip -->
+          <div class="expression-strip" aria-label="Test character facial expressions">
+            <span class="strip-label">Expressions:</span>
+            <button type="button" class="expr-btn active" data-expr="warm">Warm</button>
+            <button type="button" class="expr-btn" data-expr="happy">Happy</button>
+            <button type="button" class="expr-btn" data-expr="excited">Excited</button>
+            <button type="button" class="expr-btn" data-expr="thinking">Thinking</button>
+            <button type="button" class="expr-btn" data-expr="surprised">Surprised</button>
+            <button type="button" class="expr-btn" data-expr="curious">Curious</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Story & Conversation Panel -->
+      <section class="dialogue-panel" aria-label="Interactive Story and Chat">
+        <div class="panel-header">
+          <div>
+            <h2>Observatory Log</h2>
+            <p class="panel-desc">Interactive branching stories &amp; live dialogue</p>
+          </div>
+          <button id="resetStoryBtn" class="ghost-btn" type="button">New Story</button>
+        </div>
+
+        <!-- Chat / Story Transcript -->
+        <div class="chat-feed" id="chatFeed" role="log" aria-live="polite"></div>
+
+        <!-- Quick Story Starters / Choice Chips -->
+        <div class="choices-bar" id="choicesBar" aria-label="Suggested story choices"></div>
+
+        <!-- Composer -->
+        <form class="composer" id="chatForm">
+          <button
+            id="micBtn"
+            class="mic-btn"
+            type="button"
+            title="Speak using your microphone"
+            aria-label="Speak using your microphone"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" x2="12" y1="19" y2="22" />
+            </svg>
+          </button>
+
+          <input
+            id="userInput"
+            type="text"
+            placeholder="Type a message or story choice..."
+            autocomplete="off"
+            aria-label="Message Lyra"
+          />
+
+          <button id="sendBtn" class="send-btn" type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog" class="settings-card">
+      <div class="settings-head">
+        <h3>Avatar Voice &amp; AI Settings</h3>
+        <button id="closeSettingsBtn" type="button" class="close-btn" aria-label="Close settings">✕</button>
+      </div>
+
+      <div class="field-group">
+        <label for="voiceSelect">Spoken Voice (Web Speech API)</label>
+        <select id="voiceSelect"></select>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label for="rateRange">Speech Speed: <span id="rateVal">1.0</span>x</label>
+          <input id="rateRange" type="range" min="0.75" max="1.35" step="0.05" value="1.0" />
+        </div>
+        <div class="field-group">
+          <label for="pitchRange">Voice Pitch: <span id="pitchVal">1.12</span></label>
+          <input id="pitchRange" type="range" min="0.8" max="1.35" step="0.02" value="1.12" />
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="field-group">
+        <label for="geminiKeyInput">
+          Optional Free Gemini API Key
+          <span class="hint">(Leave blank to use built-in offline Story Engine)</span>
+        </label>
+        <input
+          id="geminiKeyInput"
+          type="password"
+          placeholder="AIza... (stored locally in your browser only)"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="settings-foot">
+        <button id="saveSettingsBtn" type="button" class="send-btn">Save Settings</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="character.js"></script>
+  <script src="brain.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
